@@ -18,6 +18,13 @@
   function setupNavigation() {
     const toggle = qs('.menu-toggle');
     const nav = qs('.site-nav');
+    if (nav && !qs('a[href="about.html"]', nav)) {
+      nav.insertAdjacentHTML('beforeend', '<a href="about.html">About</a>');
+    }
+    if (nav) {
+      const currentPage = document.body.dataset.page;
+      qsa('a', nav).forEach(link => link.classList.toggle('active', link.getAttribute('href') === `${currentPage === 'home' ? 'index' : currentPage}.html`));
+    }
     if (toggle && nav) {
       toggle.addEventListener('click', () => {
         const isOpen = nav.classList.toggle('open');

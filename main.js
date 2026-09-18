@@ -36,6 +36,12 @@
     qsa('.close-cart, .drawer-scrim').forEach(button => button.addEventListener('click', closeCart));
   }
 
+  function setupStaffAccess() {
+    const footer = qs('.site-footer');
+    if (!footer || qs('.staff-links', footer)) return;
+    footer.insertAdjacentHTML('beforeend', '<small class="staff-links">Staff access · <a href="admin.html">Admin</a> · <a href="orders.html">Orders</a></small>');
+  }
+
   function openCart() {
     const drawer = qs('.cart-drawer');
     const scrim = qs('.drawer-scrim');
@@ -188,6 +194,7 @@
   }
 
   setupNavigation();
+  setupStaffAccess();
   setupFilters();
   applyMenuAvailability();
   setupCustomization();

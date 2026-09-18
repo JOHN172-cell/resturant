@@ -4,6 +4,6 @@
   "private": true,
   "description": "Cinder & Salt restaurant website",
   "scripts": {
-    "dev": "python -m http.server 4173"
+    "dev": "powershell -NoProfile -ExecutionPolicy Bypass -File .\\dev.ps1"
   }
 }

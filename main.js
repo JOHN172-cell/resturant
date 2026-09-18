@@ -64,6 +64,13 @@
     }));
   }
 
+  function applyMenuAvailability() {
+    const availability = JSON.parse(localStorage.getItem('cinder-salt-availability') || '{}');
+    qsa('.menu-card').forEach(card => {
+      if (availability[card.dataset.id] === false) card.remove();
+    });
+  }
+
   function setupCustomization() {
     qsa('.add-button').forEach(button => button.addEventListener('click', () => {
       const card = button.closest('.menu-card');
@@ -143,7 +150,13 @@
       layer?.classList.remove('open');
       layer?.setAttribute('aria-hidden', 'true');
       document.body.classList.remove('locked');
-      if (button.classList.contains('checkout-done')) { cart = []; saveCart(); }
+      if (button.classList.contains('checkout-done')) {
+        const orders = JSON.parse(localStorage.getItem('cinder-salt-orders') || '[]');
+        orders.push({ id: `order-${Date.now()}`, createdAt: new Date().toISOString(), items: cart, status: 'new' });
+        localStorage.setItem('cinder-salt-orders', JSON.stringify(orders));
+        cart = [];
+        saveCart();
+      }
     }));
   }
 
@@ -159,6 +172,9 @@
       event.preventDefault();
       if (!reservationForm.checkValidity()) { showMessage(reservationForm, 'Please fill in each required field.'); reservationForm.reportValidity(); return; }
       const data = new FormData(reservationForm);
+      const reservations = JSON.parse(localStorage.getItem('cinder-salt-reservations') || '[]');
+      reservations.push({ id: `reservation-${Date.now()}`, name: data.get('name'), email: data.get('email'), phone: data.get('phone'), date: data.get('date'), time: data.get('time'), party: data.get('party'), seating: data.get('seating'), notes: data.get('notes'), status: 'pending' });
+      localStorage.setItem('cinder-salt-reservations', JSON.stringify(reservations));
       showMessage(reservationForm, `Thanks, ${data.get('name')}. Your table for ${data.get('party')} on ${data.get('date')} at ${data.get('time')} is requested. We’ll confirm by email shortly.`, true);
       reservationForm.reset();
     });
@@ -173,6 +189,7 @@
 
   setupNavigation();
   setupFilters();
+  applyMenuAvailability();
   setupCustomization();
   setupCheckout();
   setupForms();

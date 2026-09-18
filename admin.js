@@ -15,6 +15,7 @@
   const qsa = selector => [...document.querySelectorAll(selector)];
   let reservations = JSON.parse(localStorage.getItem(reservationsKey) || '[]');
   let availability = JSON.parse(localStorage.getItem(menuKey) || '{}');
+  let menuSearch = '';
 
   function formatDate(value) {
     if (!value) return 'Date pending';
@@ -55,7 +56,9 @@
   }
 
   function renderMenu() {
-    qs('#admin-menu-list').innerHTML = menuItems.map(item => { const isAvailable = availability[item.id] !== false; return `<div class="admin-menu-item"><div><strong>${item.name}</strong><p>${item.category} / ${item.price}</p></div><button type="button" class="availability-toggle ${isAvailable ? 'available' : ''}" aria-label="${isAvailable ? 'Hide' : 'Show'} ${item.name}" data-menu-id="${item.id}" aria-pressed="${isAvailable}"></button></div>`; }).join('');
+    const matchingItems = menuItems.filter(item => `${item.name} ${item.category}`.toLowerCase().includes(menuSearch.toLowerCase()));
+    qs('#admin-menu-list').innerHTML = matchingItems.map(item => { const isAvailable = availability[item.id] !== false; return `<div class="admin-menu-item"><div><strong>${item.name}</strong><p>${item.category} / ${item.price}</p></div><button type="button" class="availability-toggle ${isAvailable ? 'available' : ''}" aria-label="${isAvailable ? 'Hide' : 'Show'} ${item.name}" data-menu-id="${item.id}" aria-pressed="${isAvailable}"></button></div>`; }).join('');
+    qs('#menu-search-empty').hidden = matchingItems.length > 0;
     qsa('[data-menu-id]').forEach(button => button.addEventListener('click', () => {
       const id = button.dataset.menuId;
       availability[id] = availability[id] === false;
@@ -76,6 +79,11 @@
   function setupFilters() {
     qsa('[data-reservation-filter]').forEach(button => button.addEventListener('click', () => { qsa('[data-reservation-filter]').forEach(item => item.classList.remove('active')); button.classList.add('active'); renderReservations(button.dataset.reservationFilter); }));
   }
+
+  qs('#menu-search').addEventListener('input', event => {
+    menuSearch = event.target.value.trim();
+    renderMenu();
+  });
 
   seedDemoReservation();
   qs('#admin-date').textContent = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });

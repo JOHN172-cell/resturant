@@ -12,6 +12,7 @@
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="admin.css">
   <link rel="stylesheet" href="admin-mobile.css">
+  <link rel="stylesheet" href="admin-search.css">
   <script src="admin.js" defer></script>
 </head>
 <body class="admin-body">
@@ -28,7 +29,7 @@
       <aside class="admin-panel service-panel"><div class="panel-heading"><div><p class="eyebrow">Kitchen & bar</p><h2>Service notes</h2></div></div><ul class="service-list"><li><span class="status-dot live"></span><div><strong>Tonight’s menu</strong><p>Live and visible to guests</p></div><span class="service-time">LIVE</span></li><li><span class="status-dot"></span><div><strong>Reservation inbox</strong><p id="inbox-note">No new requests</p></div><span class="service-time">NOW</span></li><li><span class="status-dot"></span><div><strong>Pickup ordering</strong><p>Mock checkout enabled</p></div><span class="service-time">TEST</span></li></ul><div class="service-tip"><span>Tip</span><p>Confirm large parties by phone before service begins.</p></div></aside>
     </section>
     <section class="admin-content-grid lower-admin-grid">
-      <div class="admin-panel menu-control-panel"><div class="panel-heading"><div><p class="eyebrow">Availability</p><h2>Menu items</h2></div><span class="panel-note">Toggle what guests can order</span></div><div class="admin-menu-list" id="admin-menu-list"></div></div>
+      <div class="admin-panel menu-control-panel"><div class="panel-heading"><div><p class="eyebrow">Availability</p><h2>Menu items</h2></div><span class="panel-note">Toggle what guests can order</span></div><label class="admin-search-label" for="menu-search">Search food<input id="menu-search" class="admin-search" type="search" placeholder="Search by dish or category"></label><div class="admin-menu-list" id="admin-menu-list"></div><div class="admin-empty" id="menu-search-empty" hidden>No menu items match that search.</div></div>
       <div class="admin-panel order-panel"><div class="panel-heading"><div><p class="eyebrow">Takeout</p><h2>Order receiving</h2></div><span class="panel-note">Separate workspace</span></div><p class="order-handoff-copy">Orders are received and moved through the kitchen queue on the dedicated order inbox.</p><a class="button button-dark order-handoff" href="orders.html">Open order inbox <span>↗</span></a></div>
     </section>
     <p class="admin-disclaimer">Frontend demo console. Connect these controls to authenticated server endpoints and a database before using this page for real restaurant operations.</p>

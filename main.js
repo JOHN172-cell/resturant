@@ -2,8 +2,8 @@
 (function () {
   'use strict';
 
-  const cartKey = 'cinder-salt-cart';
-  let cart = JSON.parse(localStorage.getItem(cartKey) || '[]');
+  const cartKey = 'velvet-plate-cart';
+  let cart = JSON.parse(localStorage.getItem(cartKey) || localStorage.getItem('cinder-salt-cart') || '[]');
   let selectedDish = null;
 
   const qs = (selector, parent = document) => parent.querySelector(selector);
@@ -70,8 +70,44 @@
     }));
   }
 
+  function loadMenuItems() {
+    const stored = JSON.parse(localStorage.getItem('velvet-plate-menu-data') || localStorage.getItem('cinder-salt-menu-data') || 'null');
+    if (!Array.isArray(stored) || !stored.length) return [];
+    return stored.map(item => ({
+      id: String(item.id || 'dish'),
+      name: String(item.name || 'Untitled dish'),
+      category: String(item.category || 'Starter'),
+      price: Number(item.price) || 0,
+      description: String(item.description || '')
+    }));
+  }
+
+  function renderDynamicMenu() {
+    const menuGrid = qs('.menu-grid');
+    if (!menuGrid) return;
+
+    const menuItems = loadMenuItems();
+    if (!menuItems.length) return;
+
+    const menuCards = qsa('.menu-card', menuGrid);
+    const existingIds = new Set(menuCards.map(card => card.dataset.id));
+    const list = menuItems.filter(item => !existingIds.has(item.id));
+    if (!list.length) return;
+
+    const html = list.map((item, index) => `
+      <article class="menu-card" data-category="${item.category.toLowerCase()}s" data-id="${item.id}" data-name="${item.name}" data-price="${item.price}" data-description="${item.description || item.name}">
+        <div class="menu-image menu-image-${(index % 6) + 1}"><span>${String(menuCards.length + index + 1).padStart(2, '0')}</span></div>
+        <div class="menu-card-body"><div><span class="card-category">${item.category}</span><h2>${item.name}</h2><p>${item.description || 'Freshly made and ready to serve'}</p></div><strong>$${Number(item.price).toFixed(2)}</strong></div>
+        <button class="add-button" type="button">Customize & add <span>+</span></button>
+      </article>
+    `).join('');
+
+    menuGrid.insertAdjacentHTML('beforeend', html);
+    setupCustomization();
+  }
+
   function applyMenuAvailability() {
-    const availability = JSON.parse(localStorage.getItem('cinder-salt-availability') || '{}');
+    const availability = JSON.parse(localStorage.getItem('velvet-plate-availability') || localStorage.getItem('cinder-salt-availability') || '{}');
     qsa('.menu-card').forEach(card => {
       if (availability[card.dataset.id] === false) card.remove();
     });
@@ -157,9 +193,9 @@
       layer?.setAttribute('aria-hidden', 'true');
       document.body.classList.remove('locked');
       if (button.classList.contains('checkout-done')) {
-        const orders = JSON.parse(localStorage.getItem('cinder-salt-orders') || '[]');
+        const orders = JSON.parse(localStorage.getItem('velvet-plate-orders') || localStorage.getItem('cinder-salt-orders') || '[]');
         orders.push({ id: `order-${Date.now()}`, createdAt: new Date().toISOString(), items: cart, status: 'new' });
-        localStorage.setItem('cinder-salt-orders', JSON.stringify(orders));
+        localStorage.setItem('velvet-plate-orders', JSON.stringify(orders));
         cart = [];
         saveCart();
       }
@@ -178,9 +214,9 @@
       event.preventDefault();
       if (!reservationForm.checkValidity()) { showMessage(reservationForm, 'Please fill in each required field.'); reservationForm.reportValidity(); return; }
       const data = new FormData(reservationForm);
-      const reservations = JSON.parse(localStorage.getItem('cinder-salt-reservations') || '[]');
+      const reservations = JSON.parse(localStorage.getItem('velvet-plate-reservations') || localStorage.getItem('cinder-salt-reservations') || '[]');
       reservations.push({ id: `reservation-${Date.now()}`, name: data.get('name'), email: data.get('email'), phone: data.get('phone'), date: data.get('date'), time: data.get('time'), party: data.get('party'), seating: data.get('seating'), notes: data.get('notes'), status: 'pending' });
-      localStorage.setItem('cinder-salt-reservations', JSON.stringify(reservations));
+      localStorage.setItem('velvet-plate-reservations', JSON.stringify(reservations));
       showMessage(reservationForm, `Thanks, ${data.get('name')}. Your table for ${data.get('party')} on ${data.get('date')} at ${data.get('time')} is requested. We’ll confirm by email shortly.`, true);
       reservationForm.reset();
     });
@@ -195,10 +231,17 @@
 
   setupNavigation();
   setupStaffAccess();
+  renderDynamicMenu();
   setupFilters();
   applyMenuAvailability();
   setupCustomization();
   setupCheckout();
   setupForms();
   renderCart();
+
+  window.addEventListener('menu:updated', () => {
+    renderDynamicMenu();
+    applyMenuAvailability();
+    setupCustomization();
+  });
 })();

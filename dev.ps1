@@ -7,4 +7,4 @@ if (-not $listener) {
 }
 
 Start-Process $url
-Write-Host "Cinder & Salt is running at $url"
+Write-Host "The Velvet Plate is running at $url"

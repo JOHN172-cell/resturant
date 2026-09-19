@@ -1,10 +1,10 @@
 (function () {
   'use strict';
 
-  const ordersKey = 'cinder-salt-orders';
+  const ordersKey = 'velvet-plate-orders';
   const qs = selector => document.querySelector(selector);
   const qsa = selector => [...document.querySelectorAll(selector)];
-  let orders = JSON.parse(localStorage.getItem(ordersKey) || '[]');
+  let orders = JSON.parse(localStorage.getItem(ordersKey) || localStorage.getItem('cinder-salt-orders') || '[]');
 
   function render() {
     const groups = { new: [], progress: [], done: [] };
@@ -35,6 +35,6 @@
   }
 
   qs('#orders-date').textContent = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
-  qs('#refresh-orders').addEventListener('click', () => { orders = JSON.parse(localStorage.getItem(ordersKey) || '[]'); render(); });
+  qs('#refresh-orders').addEventListener('click', () => { orders = JSON.parse(localStorage.getItem(ordersKey) || localStorage.getItem('cinder-salt-orders') || '[]'); render(); });
   render();
 })();

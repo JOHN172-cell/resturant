@@ -1,8 +1,8 @@
 {
-  "name": "cinder-and-salt-restaurant",
+  "name": "the-velvet-plate-restaurant",
   "version": "1.0.0",
   "private": true,
-  "description": "Cinder & Salt restaurant website",
+  "description": "The Velvet Plate restaurant website",
   "scripts": {
     "dev": "powershell -NoProfile -ExecutionPolicy Bypass -File .\\dev.ps1"
   }

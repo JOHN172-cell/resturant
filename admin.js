@@ -6,6 +6,10 @@
   const menuDataKey = 'velvet-plate-menu-data';
   const adminUsername = 'admin123';
   const adminPassword = 'password';
+  const cloudinaryConfig = {
+    cloudName: '',
+    uploadPreset: ''
+  };
   const defaultMenuItems = [
     { id: 'carrots', name: 'Charred carrots', category: 'Starter', price: 12, description: 'whipped feta, sumac, pistachio' },
     { id: 'oysters', name: 'Ember oysters', category: 'Starter', price: 18, description: 'cider mignonette, smoked chili' },
@@ -37,7 +41,8 @@
       cuisine: String(item.cuisine || 'Continental'),
       price: Number(item.price) || 0,
       description: String(item.description || '')
-    }));
+      image: String(item.image || ''),
+      images: Array.isArray(item.images) ? item.images.map(String) : (item.image ? [String(item.image)] : [])
   }
 
   function loadAvailability() {
@@ -116,17 +121,26 @@
     }));
   }
 
-  function readImage(file) {
-    if (!file || !file.size) return Promise.resolve('');
-    if (!file.type.startsWith('image/') || file.size > 2 * 1024 * 1024) {
-      return Promise.reject(new Error('Please choose an image smaller than 2MB.'));
+  async function uploadImageToCloudinary(file) {
+    if (!cloudinaryConfig.cloudName || !cloudinaryConfig.uploadPreset) {
+      throw new Error('Add your Cloudinary cloud name and unsigned upload preset in admin.js first.');
     }
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.addEventListener('load', () => resolve(String(reader.result)));
-      reader.addEventListener('error', () => reject(new Error('The image could not be read.')));
-      reader.readAsDataURL(file);
-    });
+    if (!file.type.startsWith('image/') || file.size > 10 * 1024 * 1024) {
+      throw new Error('Each picture must be an image smaller than 10MB.');
+    }
+    const body = new FormData();
+    body.append('file', file);
+    body.append('upload_preset', cloudinaryConfig.uploadPreset);
+    const response = await fetch(`https://api.cloudinary.com/v1_1/${cloudinaryConfig.cloudName}/image/upload`, { method: 'POST', body });
+    if (!response.ok) throw new Error('Cloudinary could not upload one of the pictures.');
+    const result = await response.json();
+    return result.secure_url;
+  }
+
+  async function uploadSelectedImages(files) {
+    const selectedFiles = [...files];
+    if (selectedFiles.length < 3) throw new Error('Please choose at least 3 pictures for this dish.');
+    return Promise.all(selectedFiles.map(uploadImageToCloudinary));
   }
 
   async function addMenuItem(event) {
@@ -137,15 +151,15 @@
     const category = String(formData.get('category') || 'Starter');
     const cuisine = String(formData.get('cuisine') || 'Continental');
     const price = Number(formData.get('price'));
-    const imageFile = formData.get('image');
+    const imageFiles = formData.getAll('images').filter(file => file.size);
 
     if (!name || !Number.isFinite(price) || price <= 0) {
       return;
     }
 
-    let image = '';
+    let images = [];
     try {
-      image = await readImage(imageFile);
+      images = await uploadSelectedImages(imageFiles);
     } catch (error) {
       window.alert(error.message);
       return;
@@ -158,12 +172,16 @@
       cuisine,
       price,
       description: `${cuisine} ${category.toLowerCase()} special`,
-      image
+      image: images[0] || '',
+      images
     };
 
     const existingIndex = menuItems.findIndex(entry => entry.id === item.id || entry.name.toLowerCase() === name.toLowerCase());
     if (existingIndex >= 0) {
-      if (!image) item.image = menuItems[existingIndex].image || '';
+      if (!images.length) {
+        item.image = menuItems[existingIndex].image || '';
+        item.images = menuItems[existingIndex].images || [];
+      }
       menuItems[existingIndex] = { ...menuItems[existingIndex], ...item };
     } else {
       menuItems.push(item);

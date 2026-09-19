@@ -80,7 +80,7 @@
       cuisine: String(item.cuisine || 'Continental'),
       price: Number(item.price) || 0,
       description: String(item.description || ''),
-      image: String(item.image || '')
+      image: String(item.image || (Array.isArray(item.images) ? item.images[0] : '') || '')
     }));
   }
 

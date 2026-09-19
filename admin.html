@@ -311,11 +311,13 @@
     .add-item-dialog p { margin: 0; color: #514b43; font: 11px var(--mono); }
     .add-item-close { border: 0; background: none; color: #20201d; font-size: 28px; line-height: 1; cursor: pointer; }
     .admin-menu-form { display: grid; gap: 18px; }
-    .admin-menu-form-grid { display: grid; gap: 14px; }
+    .admin-menu-form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
     .admin-menu-form label { display: grid; gap: 7px; color: #20201d; font: 10px var(--mono); text-transform: uppercase; }
     .admin-menu-form input, .admin-menu-form select { width: 100%; border: 1px solid #b9b0a3; background: #fff; color: #20201d; padding: 12px; font: 13px var(--mono); }
     .admin-menu-form input:focus, .admin-menu-form select:focus { border-color: #d84d35; outline: 3px solid rgba(216, 77, 53, 0.16); }
     .admin-menu-form input[type="file"] { padding: 9px; background: #f5f1e8; }
+    .admin-menu-form label:last-child { grid-column: 1 / -1; }
+    @media (max-width: 520px) { .admin-menu-form-grid { grid-template-columns: 1fr; } .admin-menu-form label:last-child { grid-column: auto; } }
   </style>
 </head>
 <body class="admin-body">
@@ -405,8 +407,8 @@
                 <input type="number" name="price" min="1" step="0.01" placeholder="12" required>
               </label>
               <label>
-                <span>Food picture</span>
-                <input type="file" name="image" accept="image/png,image/jpeg,image/webp">
+                <span>Food pictures (3 or more)</span>
+                <input type="file" name="images" accept="image/png,image/jpeg,image/webp" multiple>
               </label>
             </div>
             <button class="button button-dark" type="submit">Add dish</button>

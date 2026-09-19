@@ -72,12 +72,9 @@
 
   function renderStats() {
     const covers = reservations.filter(item => item.status !== 'cancelled').reduce((sum, item) => sum + Number.parseInt(item.party, 10) || 0, 0);
-    qs('#covers-stat').textContent = covers;
-    qs('#pending-stat').textContent = reservations.filter(item => item.status === 'pending').length;
     const cart = JSON.parse(localStorage.getItem('velvet-plate-cart') || '[]');
     qs('#orders-stat').textContent = cart.reduce((sum, item) => sum + item.quantity, 0);
     qs('#menu-stat').textContent = menuItems.filter(item => availability[item.id] !== false).length;
-    qs('#inbox-note').textContent = reservations.some(item => item.status === 'pending') ? 'Requests need attention' : 'No new requests';
   }
 
   function renderReservations(filter = 'all') {
@@ -354,11 +351,9 @@
   setupAddItemModal();
   setupDishStyleOptions();
 
-  seedDemoReservation();
   qs('#admin-date').textContent = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
   setupAuth();
   renderStats();
-  renderReservations();
   renderMenu();
   renderOrders();
   setupFilters();

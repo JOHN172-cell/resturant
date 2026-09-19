@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="robots" content="noindex, nofollow">
-  <title>Order Inbox | The Velvet Plate</title>
+  <title>Orders & Reservations | The Velvet Plate</title>
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -12,10 +12,28 @@
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="admin.css">
   <link rel="stylesheet" href="orders.css">
+  <style>
+    .orders-reservations-panel { margin-top: 42px; padding: 28px; }
+    .reservation-filters { display: flex; gap: 14px; }
+    .reservation-table-wrap { overflow-x: auto; }
+    .reservation-table { width: 100%; min-width: 610px; border-collapse: collapse; text-align: left; }
+    .reservation-table th { padding: 15px 10px; border-bottom: 1px solid var(--line); color: var(--admin-muted); font: 9px var(--mono); text-transform: uppercase; letter-spacing: .08em; font-weight: 400; }
+    .reservation-table td { padding: 18px 10px; border-bottom: 1px solid var(--line); font-size: 11px; vertical-align: middle; }
+    .reservation-table td:first-child { font-weight: 700; }
+    .reservation-table td small { display: block; margin-top: 3px; font: 10px var(--mono); opacity: .6; }
+    .reservation-status { padding: 5px 7px; background: var(--paper-deep); font: 9px var(--mono); text-transform: uppercase; }
+    .reservation-status.pending { color: #94651d; background: #f8e7ba; }
+    .reservation-status.confirmed { color: #3c6d48; background: #dbe9d7; }
+    .reservation-status.cancelled { color: #963e34; background: #f3d7d1; }
+    .table-actions { display: flex; gap: 8px; }
+    .table-actions button { background: none; border-bottom: 1px solid var(--ink); padding: 3px 0; font: 9px var(--mono); text-transform: uppercase; }
+    .table-actions button:hover { color: var(--tomato); border-color: var(--tomato); }
+    @media (max-width: 700px) { .reservation-filters { flex-wrap: wrap; } .orders-reservations-panel { padding: 20px 15px; } }
+  </style>
   <script src="orders.js" defer></script>
 </head>
 <body class="orders-body">
-  <header class="admin-header"><a class="brand" href="index.html" aria-label="Back to The Velvet Plate home"><span class="brand-mark">V<span>P</span></span><span class="brand-name">The Velvet<br><em>Plate</em></span></a><div class="admin-header-label"><span>Kitchen display</span><strong>Order inbox / Today</strong></div><nav class="orders-nav"><a class="active" href="orders.html">Order inbox</a><a href="admin.html">Admin console</a></nav><a class="admin-exit" href="index.html">View website <span>↗</span></a></header>
-  <main class="orders-main"><section class="orders-welcome"><div><p class="eyebrow">Front counter / kitchen</p><h1>What’s<br><em>coming up.</em></h1></div><div class="orders-date"><span id="orders-date">Today</span><strong><span class="live-indicator"></span> Live order queue</strong></div></section><section class="order-status-bar"><div><strong id="new-order-count">0</strong><span>new orders</span></div><div><strong id="active-order-count">0</strong><span>in progress</span></div><button class="orders-refresh" type="button" id="refresh-orders">Refresh queue ↻</button></section><section class="order-columns"><div class="order-column"><div class="order-column-heading"><h2>New</h2><span id="new-column-count">0</span></div><div id="new-orders" class="order-list"></div></div><div class="order-column"><div class="order-column-heading"><h2>In progress</h2><span id="progress-column-count">0</span></div><div id="progress-orders" class="order-list"></div></div><div class="order-column"><div class="order-column-heading"><h2>Ready / complete</h2><span id="done-column-count">0</span></div><div id="done-orders" class="order-list"></div></div></section><p class="orders-disclaimer">Frontend demo order queue. Connect this page to authenticated order endpoints and a database before using it for live service.</p></main>
+  <header class="admin-header"><a class="brand" href="index.html" aria-label="Back to The Velvet Plate home"><span class="brand-mark">V<span>P</span></span><span class="brand-name">The Velvet<br><em>Plate</em></span></a><div class="admin-header-label"><span>Front of house</span><strong>Orders & reservations / Today</strong></div><nav class="orders-nav"><a class="active" href="orders.html">Orders & reservations</a><a href="admin.html">Admin console</a></nav><a class="admin-exit" href="index.html">View website <span>↗</span></a></header>
+  <main class="orders-main"><section class="orders-welcome"><div><p class="eyebrow">Front counter / kitchen</p><h1>What’s<br><em>coming up.</em></h1></div><div class="orders-date"><span id="orders-date">Today</span><strong><span class="live-indicator"></span> Live order queue</strong></div></section><section class="order-status-bar"><div><strong id="new-order-count">0</strong><span>new orders</span></div><div><strong id="active-order-count">0</strong><span>in progress</span></div><button class="orders-refresh" type="button" id="refresh-orders">Refresh queue ↻</button></section><section class="order-columns"><div class="order-column"><div class="order-column-heading"><h2>New</h2><span id="new-column-count">0</span></div><div id="new-orders" class="order-list"></div></div><div class="order-column"><div class="order-column-heading"><h2>In progress</h2><span id="progress-column-count">0</span></div><div id="progress-orders" class="order-list"></div></div><div class="order-column"><div class="order-column-heading"><h2>Ready / complete</h2><span id="done-column-count">0</span></div><div id="done-orders" class="order-list"></div></div></section><section class="admin-panel orders-reservations-panel"><div class="panel-heading"><div><p class="eyebrow">Front of house</p><h2>Reservations</h2></div><div class="reservation-filters"><button class="admin-filter active" data-reservation-filter="all" type="button">All</button><button class="admin-filter" data-reservation-filter="pending" type="button">Pending</button><button class="admin-filter" data-reservation-filter="confirmed" type="button">Confirmed</button></div></div><div class="reservation-table-wrap"><table class="reservation-table"><thead><tr><th>Guest</th><th>When</th><th>Party</th><th>Preference</th><th>Status</th><th><span class="sr-only">Actions</span></th></tr></thead><tbody id="reservation-list"></tbody></table><div class="admin-empty" id="reservation-empty">No reservation requests yet.</div></div></section><p class="orders-disclaimer">Frontend demo order and reservation queue. Connect this page to authenticated endpoints and a database before using it for live service.</p></main>
 </body>
 </html>

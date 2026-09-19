@@ -2,9 +2,11 @@
   'use strict';
 
   const ordersKey = 'velvet-plate-orders';
+  const reservationsKey = 'velvet-plate-reservations';
   const qs = selector => document.querySelector(selector);
   const qsa = selector => [...document.querySelectorAll(selector)];
   let orders = JSON.parse(localStorage.getItem(ordersKey) || '[]');
+  let reservations = JSON.parse(localStorage.getItem(reservationsKey) || '[]');
 
   function render() {
     const groups = { new: [], progress: [], done: [] };
@@ -34,7 +36,41 @@
     render();
   }
 
+  function formatDate(value) {
+    if (!value) return 'Date pending';
+    return new Date(`${value}T12:00:00`).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  }
+
+  function renderReservations(filter = 'all') {
+    const list = qs('#reservation-list');
+    const empty = qs('#reservation-empty');
+    if (!list || !empty) return;
+    const visible = reservations.filter(item => filter === 'all' || item.status === filter);
+    empty.hidden = visible.length > 0;
+    list.innerHTML = visible.map(item => `<tr><td>${item.name}<small>${item.email}</small></td><td>${formatDate(item.date)}<small>${item.time}</small></td><td>${item.party}</td><td>${item.seating || 'No preference'}</td><td><span class="reservation-status ${item.status}">${item.status}</span></td><td><div class="table-actions">${item.status === 'pending' ? `<button type="button" data-reservation-action="confirmed" data-id="${item.id}">Confirm</button><button type="button" data-reservation-action="cancelled" data-id="${item.id}">Decline</button>` : `<button type="button" data-reservation-action="pending" data-id="${item.id}">Reopen</button>`}</div></td></tr>`).join('');
+    qsa('[data-reservation-action]').forEach(button => button.addEventListener('click', () => updateReservation(button.dataset.id, button.dataset.reservationAction, filter)));
+  }
+
+  function updateReservation(id, status, filter) {
+    const reservation = reservations.find(item => item.id === id);
+    if (!reservation) return;
+    reservation.status = status;
+    localStorage.setItem(reservationsKey, JSON.stringify(reservations));
+    renderReservations(filter);
+  }
+
   qs('#orders-date').textContent = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
-  qs('#refresh-orders').addEventListener('click', () => { orders = JSON.parse(localStorage.getItem(ordersKey) || '[]'); render(); });
+  qs('#refresh-orders').addEventListener('click', () => {
+    orders = JSON.parse(localStorage.getItem(ordersKey) || '[]');
+    reservations = JSON.parse(localStorage.getItem(reservationsKey) || '[]');
+    render();
+    renderReservations();
+  });
+  qsa('[data-reservation-filter]').forEach(button => button.addEventListener('click', () => {
+    qsa('[data-reservation-filter]').forEach(item => item.classList.remove('active'));
+    button.classList.add('active');
+    renderReservations(button.dataset.reservationFilter);
+  }));
   render();
+  renderReservations();
 })();

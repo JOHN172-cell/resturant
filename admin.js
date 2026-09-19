@@ -367,15 +367,18 @@
     lockButton?.addEventListener('click', lock);
   }
 
-  const slides = qsa('.admin-login-slide');
-  let currentSlideIndex = 0;
-
-  if (slides.length) {
+  function startSlideshow(selector) {
+    const slides = qsa(selector);
+    let currentSlideIndex = 0;
+    if (!slides.length) return;
     setInterval(() => {
       currentSlideIndex = (currentSlideIndex + 1) % slides.length;
       slides.forEach((slide, index) => slide.classList.toggle('is-active', index === currentSlideIndex));
     }, 5000);
   }
+
+  startSlideshow('.admin-login-slide');
+  startSlideshow('.admin-dashboard-slide');
 
   const menuSearchInput = qs('#menu-search');
   menuSearchInput?.addEventListener('input', event => {

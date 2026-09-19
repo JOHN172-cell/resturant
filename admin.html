@@ -371,6 +371,19 @@
     .service-toggle:not(.is-on) { border-color: #c1553d; background: #f3d7d1; color: #963e34; }
     .service-toggle:not(.is-on) .service-toggle-dot { background: #c1553d; }
     .service-toggle:focus-visible { outline: 3px solid rgba(216, 77, 53, 0.2); outline-offset: 2px; }
+    .admin-dashboard-splash { position: fixed; inset: 0; z-index: 0; overflow: hidden; background: #f7c948; }
+    .admin-dashboard-splash:after { content: ''; position: absolute; inset: 0; background: rgba(255, 247, 232, 0.58); backdrop-filter: blur(2px); }
+    .admin-dashboard-slide { position: absolute; inset: 0; background-size: cover; background-position: center; opacity: 0; transform: scale(1.04); transition: opacity 2.2s ease, transform 8s ease; filter: saturate(1.08) brightness(.9); }
+    .admin-dashboard-slide.is-active { opacity: 1; transform: scale(1); }
+    .admin-app > .admin-header, .admin-app > .admin-main { position: relative; z-index: 1; }
+    .admin-app .admin-main { background: transparent; padding-top: 30px; }
+    .admin-app .admin-welcome { margin-bottom: 30px; }
+    .admin-app .admin-welcome h1 { text-shadow: 0 2px 18px rgba(255, 253, 247, .7); }
+    .admin-app .admin-search-label { position: fixed; top: 102px; right: clamp(22px, 5vw, 72px); z-index: 5; width: min(300px, 28vw); margin: 0; padding: 10px 16px 12px; border: 1px solid rgba(255, 255, 255, .72); border-radius: 999px; background: rgba(32, 32, 29, .48); color: #fffdf7; box-shadow: 0 12px 28px rgba(32, 32, 29, .16); backdrop-filter: blur(14px); }
+    .admin-app .admin-search { margin-top: 3px; border-bottom-color: rgba(255, 255, 255, .58); color: #fffdf7; }
+    .admin-app .admin-search::placeholder { color: rgba(255, 253, 247, .72); }
+    .admin-app .admin-search:focus { border-color: #fffdf7; }
+    @media (max-width: 720px) { .admin-app .admin-search-label { position: static; width: 100%; margin-top: 18px; } .admin-app .admin-main { padding-top: 24px; } }
   </style>
 </head>
 <body class="admin-body">
@@ -413,6 +426,12 @@
   </div>
 
   <div class="admin-app" id="admin-app" hidden>
+    <div class="admin-dashboard-splash" aria-hidden="true">
+      <div class="admin-dashboard-slide is-active" style="background-image: url('https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=2200&q=85');"></div>
+      <div class="admin-dashboard-slide" style="background-image: url('https://images.unsplash.com/photo-1515003197210-e0cd71810b5f?auto=format&fit=crop&w=2200&q=85');"></div>
+      <div class="admin-dashboard-slide" style="background-image: url('https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&fit=crop&w=2200&q=85');"></div>
+      <div class="admin-dashboard-slide" style="background-image: url('https://images.unsplash.com/photo-1601050690597-df0568f70950?auto=format&fit=crop&w=2200&q=85');"></div>
+    </div>
     <header class="admin-header">
       <a class="brand" href="index.html" aria-label="Back to The Velvet Plate home"><span class="brand-mark">V<span>P</span></span><span class="brand-name">The Velvet<br><em>Plate</em></span></a>
       <div class="admin-header-label"><span>Staff console</span><strong>Operations / Today</strong></div>

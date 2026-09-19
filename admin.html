@@ -315,7 +315,17 @@
     .admin-menu-form label { display: grid; gap: 7px; color: #20201d; font: 10px var(--mono); text-transform: uppercase; }
     .admin-menu-form input, .admin-menu-form select { width: 100%; border: 1px solid #b9b0a3; background: #fff; color: #20201d; padding: 12px; font: 13px var(--mono); }
     .admin-menu-form input:focus, .admin-menu-form select:focus { border-color: #d84d35; outline: 3px solid rgba(216, 77, 53, 0.16); }
-    .admin-menu-form input[type="file"] { padding: 9px; background: #f5f1e8; }
+    .admin-menu-form input[type="file"] { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; clip-path: inset(50%); }
+    .upload-zone { display: grid; justify-items: center; gap: 10px; padding: 28px 20px; border: 2px dashed #d6b86a; border-radius: 16px; background: rgba(255, 247, 220, 0.72); color: #514b43; text-align: center; text-transform: none; cursor: pointer; transition: border-color .2s ease, background .2s ease, transform .2s ease; }
+    .upload-zone:hover, .upload-zone.is-dragging, .upload-zone:focus-within { border-color: #d84d35; background: rgba(255, 239, 197, 0.9); }
+    .upload-zone.is-dragging { transform: translateY(-2px); }
+    .upload-cloud { display: grid; place-items: center; width: 48px; height: 48px; border-radius: 50%; background: #ffe18a; color: #b44731; }
+    .upload-cloud svg { width: 25px; height: 25px; }
+    .upload-zone strong { color: #20201d; font: 15px var(--display); }
+    .upload-zone small { color: #6e6254; font: 11px var(--mono); text-transform: none; }
+    .upload-browse { border: 0; border-radius: 9px; padding: 10px 16px; background: #d84d35; color: #fffdf7; font: 10px var(--mono); text-transform: uppercase; letter-spacing: .06em; cursor: pointer; }
+    .upload-browse:hover { background: #b44731; }
+    .upload-file-status { min-height: 16px; color: #315d39; font: 10px var(--mono); text-transform: none; }
     .admin-menu-actions { display: flex; align-items: center; gap: 10px; }
     .delete-menu-item { border: 1px solid #c1553d; background: transparent; color: #a33e2e; padding: 6px 9px; font: 9px var(--mono); text-transform: uppercase; cursor: pointer; }
     .delete-menu-item:hover, .delete-menu-item:focus-visible { background: #c1553d; color: #fff; outline: 3px solid rgba(193, 85, 61, 0.18); outline-offset: 2px; }
@@ -482,9 +492,17 @@
                 <span>Price</span>
                 <input type="number" name="price" min="1" step="0.01" placeholder="12" required>
               </label>
-              <label>
+              <label class="upload-field">
                 <span>Food pictures (3 or more)</span>
-                <input type="file" name="images" accept="image/png,image/jpeg,image/webp" multiple>
+                <div class="upload-zone" id="food-upload-zone" tabindex="0" role="button" aria-controls="food-images">
+                  <span class="upload-cloud" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M7 18h10a4 4 0 0 0 .6-7.95A6 6 0 0 0 6.2 9.1 4.5 4.5 0 0 0 7 18Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M12 9v6m0-6-2.2 2.2M12 9l2.2 2.2" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+                  <strong>Upload food pictures</strong>
+                  <span class="upload-browse">Browse files</span>
+                  <small>Choose a file or drag &amp; drop it here.</small>
+                  <small>JPEG, PNG, WEBP, up to 10 MB each</small>
+                  <span class="upload-file-status" id="upload-file-status" aria-live="polite"></span>
+                  <input id="food-images" type="file" name="images" accept="image/png,image/jpeg,image/webp" multiple>
+                </div>
               </label>
             </div>
             <button class="button button-dark" type="submit">Add dish</button>

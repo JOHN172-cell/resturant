@@ -273,6 +273,36 @@
     updateStyleOptions();
   }
 
+  function setupImageDropZone() {
+    const zone = qs('#food-upload-zone');
+    const input = qs('#food-images');
+    const status = qs('#upload-file-status');
+    if (!zone || !input) return;
+
+    const updateStatus = files => {
+      if (status) status.textContent = files.length ? `${files.length} picture${files.length === 1 ? '' : 's'} selected` : '';
+    };
+    const openPicker = event => {
+      if (event.target !== input) input.click();
+    };
+
+    zone.addEventListener('click', openPicker);
+    zone.addEventListener('keydown', event => {
+      if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); input.click(); }
+    });
+    input.addEventListener('change', () => updateStatus([...input.files]));
+    zone.addEventListener('dragover', event => { event.preventDefault(); zone.classList.add('is-dragging'); });
+    zone.addEventListener('dragleave', () => zone.classList.remove('is-dragging'));
+    zone.addEventListener('drop', event => {
+      event.preventDefault();
+      zone.classList.remove('is-dragging');
+      if (event.dataTransfer.files.length) {
+        input.files = event.dataTransfer.files;
+        updateStatus([...input.files]);
+      }
+    });
+  }
+
   function setupServiceToggle() {
     const toggle = qs('#service-toggle');
     const label = qs('#service-toggle-label');
@@ -389,6 +419,7 @@
   qs('#add-menu-form')?.addEventListener('submit', addMenuItem);
   setupAddItemModal();
   setupDishStyleOptions();
+  setupImageDropZone();
   setupServiceToggle();
 
   qs('#admin-date').textContent = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });

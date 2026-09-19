@@ -8,7 +8,17 @@
 
   const qs = (selector, parent = document) => parent.querySelector(selector);
   const qsa = (selector, parent = document) => [...parent.querySelectorAll(selector)];
-  const money = value => `$${value.toFixed(2)}`;
+  const money = value => `GH₵${value.toFixed(2)}`;
+
+  function normalizeCurrencyLabels() {
+    const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+    const textNodes = [];
+    let node;
+    while ((node = walker.nextNode())) textNodes.push(node);
+    textNodes.forEach(textNode => {
+      textNode.nodeValue = textNode.nodeValue.replace(/\$/g, 'GH₵');
+    });
+  }
 
   function saveCart() {
     localStorage.setItem(cartKey, JSON.stringify(cart));
@@ -99,7 +109,7 @@
     const html = list.map((item, index) => `
       <article class="menu-card" data-category="${item.category.toLowerCase()}s" data-id="${item.id}" data-name="${item.name}" data-price="${item.price}" data-description="${item.description || item.name}">
         <div class="menu-image menu-image-${(index % 6) + 1}"${item.image ? ` style="background-image:url('${item.image}')"` : ''}><span>${String(menuCards.length + index + 1).padStart(2, '0')}</span></div>
-        <div class="menu-card-body"><div><span class="card-category">${item.cuisine} / ${item.category}</span><h2>${item.name}</h2><p>${item.description || 'Freshly made and ready to serve'}</p></div><strong>$${Number(item.price).toFixed(2)}</strong></div>
+        <div class="menu-card-body"><div><span class="card-category">${item.cuisine} / ${item.category}</span><h2>${item.name}</h2><p>${item.description || 'Freshly made and ready to serve'}</p></div><strong>GH₵${Number(item.price).toFixed(2)}</strong></div>
         <button class="add-button" type="button">Customize & add <span>+</span></button>
       </article>
     `).join('');
@@ -240,6 +250,7 @@
   setupCheckout();
   setupForms();
   renderCart();
+  normalizeCurrencyLabels();
 
   window.addEventListener('menu:updated', () => {
     renderDynamicMenu();

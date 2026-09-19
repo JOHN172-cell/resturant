@@ -22,7 +22,7 @@
 
   const qs = selector => document.querySelector(selector);
   const qsa = selector => [...document.querySelectorAll(selector)];
-  const money = value => `$${Number(value).toFixed(2)}`;
+  const money = value => `GH₵${Number(value).toFixed(2)}`;
 
   let reservations = JSON.parse(localStorage.getItem(reservationsKey) || '[]');
   let menuItems = loadMenuItems();
@@ -304,7 +304,7 @@
     const target = qs('#admin-orders');
     if (!target) return;
     if (!orders.length) { target.innerHTML = '<div class="admin-empty">No open orders in this browser.</div>'; return; }
-    target.innerHTML = orders.map(item => `<article class="admin-order-item"><div><strong>${item.quantity} × ${item.name}</strong><p>${item.vegan ? 'Vegan' : 'Standard'} / ${item.spice}${item.exclusions ? ` / No: ${item.exclusions}` : ''}</p></div><strong>$${(item.price * item.quantity).toFixed(2)}</strong></article>`).join('');
+    target.innerHTML = orders.map(item => `<article class="admin-order-item"><div><strong>${item.quantity} × ${item.name}</strong><p>${item.vegan ? 'Vegan' : 'Standard'} / ${item.spice}${item.exclusions ? ` / No: ${item.exclusions}` : ''}</p></div><strong>GH₵${(item.price * item.quantity).toFixed(2)}</strong></article>`).join('');
   }
 
   function setupFilters() {

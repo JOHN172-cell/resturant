@@ -321,6 +321,12 @@
     .delete-menu-item:hover, .delete-menu-item:focus-visible { background: #c1553d; color: #fff; outline: 3px solid rgba(193, 85, 61, 0.18); outline-offset: 2px; }
     .admin-menu-form label:last-child { grid-column: 1 / -1; }
     @media (max-width: 520px) { .admin-menu-form-grid { grid-template-columns: 1fr; } .admin-menu-form label:last-child { grid-column: auto; } }
+    .menu-control-panel { padding: clamp(24px, 4vw, 44px); }
+    .admin-menu-item { display: grid; grid-template-columns: 72px minmax(0, 1fr) auto; align-items: center; gap: 18px; padding: 18px 0; }
+    .admin-menu-thumb { width: 72px; height: 72px; border-radius: 12px; background-size: cover; background-position: center; box-shadow: inset 0 0 0 1px rgba(32, 32, 29, 0.12); }
+    .admin-menu-item strong { font-size: 22px; }
+    .admin-menu-item p { font-size: 13px; }
+    @media (max-width: 620px) { .admin-menu-item { grid-template-columns: 58px minmax(0, 1fr); } .admin-menu-thumb { width: 58px; height: 58px; } .admin-menu-actions { grid-column: 2; justify-content: flex-start; } }
 
     body.admin-body { background: #fff7e8; color: #20201d; }
     .admin-login-splash { background: #f7c948; }
@@ -420,10 +426,6 @@
     </header>
     <main class="admin-main">
       <section class="admin-welcome"><div><p class="eyebrow">Good afternoon, team</p><h1>Keep the room<br><em>moving.</em></h1></div><div class="admin-date"><span id="admin-date">Today</span><strong>Service starts at 5pm</strong><label class="admin-search-label" for="menu-search">Search food<input id="menu-search" class="admin-search" type="search" placeholder="Search by dish or category"></label></div></section>
-      <section class="stats-grid" aria-label="Restaurant overview"><article class="stat-card stat-card-accent"><span>Open orders</span><strong id="orders-stat">0</strong><small>in this browser session</small></article><article class="stat-card"><span>Menu live items</span><strong id="menu-stat">0</strong><small>currently visible to guests</small></article></section>
-      <section class="admin-content-grid">
-        <aside class="admin-panel service-panel"><div class="panel-heading"><div><p class="eyebrow">Kitchen & bar</p><h2>Service notes</h2></div><button class="service-toggle is-on" id="service-toggle" type="button" aria-pressed="true"><span class="service-toggle-dot"></span><span id="service-toggle-label">Service on</span></button></div><ul class="service-list"><li><span class="status-dot live" id="service-status-dot"></span><div><strong>Tonight’s menu</strong><p id="service-status-copy">Live and visible to guests</p></div><span class="service-time" id="service-status-time">LIVE</span></li><li><span class="status-dot"></span><div><strong>Pickup ordering</strong><p>Mock checkout enabled</p></div><span class="service-time">TEST</span></li></ul><div class="service-tip"><span>Tip</span><p>Confirm large parties by phone on the orders and reservations page.</p></div></aside>
-      </section>
       <section class="admin-content-grid menu-only-grid">
         <div class="admin-panel menu-control-panel"><div class="panel-heading"><div><p class="eyebrow">Availability</p><h2>Menu items</h2></div><div class="menu-panel-tools"><span class="panel-note">Toggle what guests can order</span><button class="add-item-trigger" id="open-add-item" type="button" aria-label="Add menu item" aria-controls="add-item-modal" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button></div></div>
           <div class="add-item-modal" id="add-item-modal" role="dialog" aria-modal="true" aria-labelledby="add-item-title" hidden><div class="add-item-dialog"><div class="add-item-dialog-header"><div><h2 id="add-item-title">Add a menu item</h2><p>Create a dish for the guest menu.</p></div><button class="add-item-close" id="close-add-item" type="button" aria-label="Close add item dialog">×</button></div>

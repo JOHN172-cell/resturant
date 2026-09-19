@@ -74,8 +74,10 @@
   function renderStats() {
     const covers = reservations.filter(item => item.status !== 'cancelled').reduce((sum, item) => sum + Number.parseInt(item.party, 10) || 0, 0);
     const cart = JSON.parse(localStorage.getItem('velvet-plate-cart') || '[]');
-    qs('#orders-stat').textContent = cart.reduce((sum, item) => sum + item.quantity, 0);
-    qs('#menu-stat').textContent = menuItems.filter(item => availability[item.id] !== false).length;
+    const ordersStat = qs('#orders-stat');
+    const menuStat = qs('#menu-stat');
+    if (ordersStat) ordersStat.textContent = cart.reduce((sum, item) => sum + item.quantity, 0);
+    if (menuStat) menuStat.textContent = menuItems.filter(item => availability[item.id] !== false).length;
   }
 
   function renderReservations(filter = 'all') {
@@ -104,9 +106,16 @@
       return haystack.includes(searchTerm);
     });
 
+    const fallbackImages = {
+      Starter: 'https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?auto=format&fit=crop&w=240&q=80',
+      Main: 'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=240&q=80',
+      Dessert: 'https://images.unsplash.com/photo-1551024506-0bccd828d307?auto=format&fit=crop&w=240&q=80',
+      Drink: 'https://images.unsplash.com/photo-1544145945-f90425340c7e?auto=format&fit=crop&w=240&q=80'
+    };
     qs('#admin-menu-list').innerHTML = matchingItems.map(item => {
       const isAvailable = availability[item.id] !== false;
-      return `<div class="admin-menu-item"><div><strong>${item.name}</strong><p>${item.cuisine} / ${item.category} / ${money(item.price)}</p></div><div class="admin-menu-actions"><button type="button" class="availability-toggle ${isAvailable ? 'available' : ''}" aria-label="${isAvailable ? 'Make unavailable' : 'Make available'} ${item.name}" data-menu-id="${item.id}" aria-pressed="${isAvailable}"><span>${isAvailable ? 'Available' : 'Unavailable'}</span></button><button type="button" class="delete-menu-item" aria-label="Delete ${item.name}" data-delete-menu-id="${item.id}">Delete</button></div></div>`;
+      const image = item.image || item.images?.[0] || fallbackImages[item.category] || fallbackImages.Main;
+      return `<div class="admin-menu-item"><div class="admin-menu-thumb" role="img" aria-label="${item.name} preview" style="background-image:url('${image}')"></div><div><strong>${item.name}</strong><p>${item.cuisine} / ${item.category} / ${money(item.price)}</p></div><div class="admin-menu-actions"><button type="button" class="availability-toggle ${isAvailable ? 'available' : ''}" aria-label="${isAvailable ? 'Make unavailable' : 'Make available'} ${item.name}" data-menu-id="${item.id}" aria-pressed="${isAvailable}"><span>${isAvailable ? 'Available' : 'Unavailable'}</span></button><button type="button" class="delete-menu-item" aria-label="Delete ${item.name}" data-delete-menu-id="${item.id}">Delete</button></div></div>`;
     }).join('');
 
     qs('#menu-search-empty').hidden = matchingItems.length > 0;

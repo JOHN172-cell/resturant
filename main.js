@@ -3,7 +3,7 @@
   'use strict';
 
   const cartKey = 'velvet-plate-cart';
-  let cart = JSON.parse(localStorage.getItem(cartKey) || localStorage.getItem('cinder-salt-cart') || '[]');
+  let cart = JSON.parse(localStorage.getItem(cartKey) || '[]');
   let selectedDish = null;
 
   const qs = (selector, parent = document) => parent.querySelector(selector);
@@ -71,7 +71,7 @@
   }
 
   function loadMenuItems() {
-    const stored = JSON.parse(localStorage.getItem('velvet-plate-menu-data') || localStorage.getItem('cinder-salt-menu-data') || 'null');
+    const stored = JSON.parse(localStorage.getItem('velvet-plate-menu-data') || 'null');
     if (!Array.isArray(stored) || !stored.length) return [];
     return stored.map(item => ({
       id: String(item.id || 'dish'),
@@ -107,7 +107,7 @@
   }
 
   function applyMenuAvailability() {
-    const availability = JSON.parse(localStorage.getItem('velvet-plate-availability') || localStorage.getItem('cinder-salt-availability') || '{}');
+    const availability = JSON.parse(localStorage.getItem('velvet-plate-availability') || '{}');
     qsa('.menu-card').forEach(card => {
       if (availability[card.dataset.id] === false) card.remove();
     });
@@ -193,7 +193,7 @@
       layer?.setAttribute('aria-hidden', 'true');
       document.body.classList.remove('locked');
       if (button.classList.contains('checkout-done')) {
-        const orders = JSON.parse(localStorage.getItem('velvet-plate-orders') || localStorage.getItem('cinder-salt-orders') || '[]');
+        const orders = JSON.parse(localStorage.getItem('velvet-plate-orders') || '[]');
         orders.push({ id: `order-${Date.now()}`, createdAt: new Date().toISOString(), items: cart, status: 'new' });
         localStorage.setItem('velvet-plate-orders', JSON.stringify(orders));
         cart = [];
@@ -214,7 +214,7 @@
       event.preventDefault();
       if (!reservationForm.checkValidity()) { showMessage(reservationForm, 'Please fill in each required field.'); reservationForm.reportValidity(); return; }
       const data = new FormData(reservationForm);
-      const reservations = JSON.parse(localStorage.getItem('velvet-plate-reservations') || localStorage.getItem('cinder-salt-reservations') || '[]');
+      const reservations = JSON.parse(localStorage.getItem('velvet-plate-reservations') || '[]');
       reservations.push({ id: `reservation-${Date.now()}`, name: data.get('name'), email: data.get('email'), phone: data.get('phone'), date: data.get('date'), time: data.get('time'), party: data.get('party'), seating: data.get('seating'), notes: data.get('notes'), status: 'pending' });
       localStorage.setItem('velvet-plate-reservations', JSON.stringify(reservations));
       showMessage(reservationForm, `Thanks, ${data.get('name')}. Your table for ${data.get('party')} on ${data.get('date')} at ${data.get('time')} is requested. We’ll confirm by email shortly.`, true);

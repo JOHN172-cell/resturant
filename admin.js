@@ -19,13 +19,13 @@
   const qsa = selector => [...document.querySelectorAll(selector)];
   const money = value => `$${Number(value).toFixed(2)}`;
 
-  let reservations = JSON.parse(localStorage.getItem(reservationsKey) || localStorage.getItem('cinder-salt-reservations') || '[]');
+  let reservations = JSON.parse(localStorage.getItem(reservationsKey) || '[]');
   let menuItems = loadMenuItems();
   let availability = loadAvailability();
   let menuSearch = '';
 
   function loadMenuItems() {
-    const stored = JSON.parse(localStorage.getItem(menuDataKey) || localStorage.getItem('cinder-salt-menu-data') || 'null');
+    const stored = JSON.parse(localStorage.getItem(menuDataKey) || 'null');
     if (!Array.isArray(stored) || !stored.length) {
       localStorage.setItem(menuDataKey, JSON.stringify(defaultMenuItems));
       return [...defaultMenuItems];
@@ -40,7 +40,7 @@
   }
 
   function loadAvailability() {
-    const state = JSON.parse(localStorage.getItem(menuKey) || localStorage.getItem('cinder-salt-availability') || '{}');
+    const state = JSON.parse(localStorage.getItem(menuKey) || '{}');
     menuItems.forEach(item => {
       if (state[item.id] === undefined) state[item.id] = true;
     });
@@ -67,7 +67,7 @@
     const covers = reservations.filter(item => item.status !== 'cancelled').reduce((sum, item) => sum + Number.parseInt(item.party, 10) || 0, 0);
     qs('#covers-stat').textContent = covers;
     qs('#pending-stat').textContent = reservations.filter(item => item.status === 'pending').length;
-    const cart = JSON.parse(localStorage.getItem('velvet-plate-cart') || localStorage.getItem('cinder-salt-cart') || '[]');
+    const cart = JSON.parse(localStorage.getItem('velvet-plate-cart') || '[]');
     qs('#orders-stat').textContent = cart.reduce((sum, item) => sum + item.quantity, 0);
     qs('#menu-stat').textContent = menuItems.filter(item => availability[item.id] !== false).length;
     qs('#inbox-note').textContent = reservations.some(item => item.status === 'pending') ? 'Requests need attention' : 'No new requests';
@@ -152,7 +152,7 @@
   }
 
   function renderOrders() {
-    const orders = JSON.parse(localStorage.getItem('velvet-plate-cart') || localStorage.getItem('cinder-salt-cart') || '[]');
+    const orders = JSON.parse(localStorage.getItem('velvet-plate-cart') || '[]');
     const target = qs('#admin-orders');
     if (!target) return;
     if (!orders.length) { target.innerHTML = '<div class="admin-empty">No open orders in this browser.</div>'; return; }
@@ -191,7 +191,7 @@
       usernameField?.focus();
     };
 
-    if (sessionStorage.getItem('velvet-plate-admin-auth') === 'true' || sessionStorage.getItem('cinder-salt-admin-auth') === 'true') {
+    if (sessionStorage.getItem('velvet-plate-admin-auth') === 'true') {
       unlock();
     }
 

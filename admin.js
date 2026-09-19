@@ -4,6 +4,7 @@
   const reservationsKey = 'velvet-plate-reservations';
   const menuKey = 'velvet-plate-availability';
   const menuDataKey = 'velvet-plate-menu-data';
+  const serviceKey = 'velvet-plate-service-active';
   const adminUsername = 'admin123';
   const adminPassword = 'admin123';
   const cloudinaryConfig = {
@@ -263,6 +264,32 @@
     updateStyleOptions();
   }
 
+  function setupServiceToggle() {
+    const toggle = qs('#service-toggle');
+    const label = qs('#service-toggle-label');
+    const dot = qs('#service-status-dot');
+    const copy = qs('#service-status-copy');
+    const time = qs('#service-status-time');
+    if (!toggle) return;
+
+    const update = active => {
+      toggle.classList.toggle('is-on', active);
+      toggle.setAttribute('aria-pressed', String(active));
+      if (label) label.textContent = active ? 'Service on' : 'Service off';
+      dot?.classList.toggle('live', active);
+      if (copy) copy.textContent = active ? 'Live and visible to guests' : 'Service paused for guests';
+      if (time) time.textContent = active ? 'LIVE' : 'PAUSED';
+    };
+
+    let active = localStorage.getItem(serviceKey) !== 'false';
+    update(active);
+    toggle.addEventListener('click', () => {
+      active = !active;
+      localStorage.setItem(serviceKey, String(active));
+      update(active);
+    });
+  }
+
   function renderOrders() {
     const orders = JSON.parse(localStorage.getItem('velvet-plate-cart') || '[]');
     const target = qs('#admin-orders');
@@ -350,6 +377,7 @@
   qs('#add-menu-form')?.addEventListener('submit', addMenuItem);
   setupAddItemModal();
   setupDishStyleOptions();
+  setupServiceToggle();
 
   qs('#admin-date').textContent = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
   setupAuth();

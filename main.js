@@ -77,8 +77,10 @@
       id: String(item.id || 'dish'),
       name: String(item.name || 'Untitled dish'),
       category: String(item.category || 'Starter'),
+      cuisine: String(item.cuisine || 'Continental'),
       price: Number(item.price) || 0,
-      description: String(item.description || '')
+      description: String(item.description || ''),
+      image: String(item.image || '')
     }));
   }
 
@@ -96,8 +98,8 @@
 
     const html = list.map((item, index) => `
       <article class="menu-card" data-category="${item.category.toLowerCase()}s" data-id="${item.id}" data-name="${item.name}" data-price="${item.price}" data-description="${item.description || item.name}">
-        <div class="menu-image menu-image-${(index % 6) + 1}"><span>${String(menuCards.length + index + 1).padStart(2, '0')}</span></div>
-        <div class="menu-card-body"><div><span class="card-category">${item.category}</span><h2>${item.name}</h2><p>${item.description || 'Freshly made and ready to serve'}</p></div><strong>$${Number(item.price).toFixed(2)}</strong></div>
+        <div class="menu-image menu-image-${(index % 6) + 1}"${item.image ? ` style="background-image:url('${item.image}')"` : ''}><span>${String(menuCards.length + index + 1).padStart(2, '0')}</span></div>
+        <div class="menu-card-body"><div><span class="card-category">${item.cuisine} / ${item.category}</span><h2>${item.name}</h2><p>${item.description || 'Freshly made and ready to serve'}</p></div><strong>$${Number(item.price).toFixed(2)}</strong></div>
         <button class="add-button" type="button">Customize & add <span>+</span></button>
       </article>
     `).join('');

@@ -34,6 +34,7 @@
       id: String(item.id || slugify(item.name || 'dish')),
       name: String(item.name || 'Untitled dish'),
       category: String(item.category || 'Starter'),
+      cuisine: String(item.cuisine || 'Continental'),
       price: Number(item.price) || 0,
       description: String(item.description || '')
     }));
@@ -95,13 +96,13 @@
     const searchTerm = menuSearch.trim().toLowerCase();
     const matchingItems = menuItems.filter(item => {
       if (!searchTerm) return true;
-      const haystack = `${item.name} ${item.category} ${item.description}`.toLowerCase();
+      const haystack = `${item.name} ${item.cuisine} ${item.category} ${item.description}`.toLowerCase();
       return haystack.includes(searchTerm);
     });
 
     qs('#admin-menu-list').innerHTML = matchingItems.map(item => {
       const isAvailable = availability[item.id] !== false;
-      return `<div class="admin-menu-item"><div><strong>${item.name}</strong><p>${item.category} / ${money(item.price)}</p></div><button type="button" class="availability-toggle ${isAvailable ? 'available' : ''}" aria-label="${isAvailable ? 'Hide' : 'Show'} ${item.name}" data-menu-id="${item.id}" aria-pressed="${isAvailable}"></button></div>`;
+      return `<div class="admin-menu-item"><div><strong>${item.name}</strong><p>${item.cuisine} / ${item.category} / ${money(item.price)}</p></div><button type="button" class="availability-toggle ${isAvailable ? 'available' : ''}" aria-label="${isAvailable ? 'Hide' : 'Show'} ${item.name}" data-menu-id="${item.id}" aria-pressed="${isAvailable}"></button></div>`;
     }).join('');
 
     qs('#menu-search-empty').hidden = matchingItems.length > 0;
@@ -115,15 +116,38 @@
     }));
   }
 
-  function addMenuItem(event) {
+  function readImage(file) {
+    if (!file || !file.size) return Promise.resolve('');
+    if (!file.type.startsWith('image/') || file.size > 2 * 1024 * 1024) {
+      return Promise.reject(new Error('Please choose an image smaller than 2MB.'));
+    }
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.addEventListener('load', () => resolve(String(reader.result)));
+      reader.addEventListener('error', () => reject(new Error('The image could not be read.')));
+      reader.readAsDataURL(file);
+    });
+  }
+
+  async function addMenuItem(event) {
     event.preventDefault();
     const form = event.currentTarget;
     const formData = new FormData(form);
     const name = String(formData.get('name') || '').trim();
     const category = String(formData.get('category') || 'Starter');
+    const cuisine = String(formData.get('cuisine') || 'Continental');
     const price = Number(formData.get('price'));
+    const imageFile = formData.get('image');
 
     if (!name || !Number.isFinite(price) || price <= 0) {
+      return;
+    }
+
+    let image = '';
+    try {
+      image = await readImage(imageFile);
+    } catch (error) {
+      window.alert(error.message);
       return;
     }
 
@@ -131,12 +155,15 @@
       id: slugify(name),
       name,
       category,
+      cuisine,
       price,
-      description: `${category.toLowerCase()} special`
+      description: `${cuisine} ${category.toLowerCase()} special`,
+      image
     };
 
     const existingIndex = menuItems.findIndex(entry => entry.id === item.id || entry.name.toLowerCase() === name.toLowerCase());
     if (existingIndex >= 0) {
+      if (!image) item.image = menuItems[existingIndex].image || '';
       menuItems[existingIndex] = { ...menuItems[existingIndex], ...item };
     } else {
       menuItems.push(item);
@@ -149,6 +176,35 @@
     renderMenu();
     renderStats();
     window.dispatchEvent(new CustomEvent('menu:updated'));
+    closeAddItemModal();
+  }
+
+  function closeAddItemModal() {
+    const modal = qs('#add-item-modal');
+    const trigger = qs('#open-add-item');
+    if (!modal) return;
+    modal.hidden = true;
+    trigger?.setAttribute('aria-expanded', 'false');
+  }
+
+  function setupAddItemModal() {
+    const modal = qs('#add-item-modal');
+    const trigger = qs('#open-add-item');
+    const closeButton = qs('#close-add-item');
+    if (!modal || !trigger) return;
+
+    trigger.addEventListener('click', () => {
+      modal.hidden = false;
+      trigger.setAttribute('aria-expanded', 'true');
+      qs('#add-menu-form input[name="name"]')?.focus();
+    });
+    closeButton?.addEventListener('click', closeAddItemModal);
+    modal.addEventListener('click', event => {
+      if (event.target === modal) closeAddItemModal();
+    });
+    document.addEventListener('keydown', event => {
+      if (event.key === 'Escape' && !modal.hidden) closeAddItemModal();
+    });
   }
 
   function renderOrders() {
@@ -236,6 +292,7 @@
   });
 
   qs('#add-menu-form')?.addEventListener('submit', addMenuItem);
+  setupAddItemModal();
 
   seedDemoReservation();
   qs('#admin-date').textContent = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });

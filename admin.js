@@ -5,7 +5,7 @@
   const menuKey = 'velvet-plate-availability';
   const menuDataKey = 'velvet-plate-menu-data';
   const adminUsername = 'admin123';
-  const adminPassword = 'password';
+  const adminPassword = 'admin123';
   const cloudinaryConfig = {
     cloudName: '',
     uploadPreset: ''
@@ -40,9 +40,10 @@
       category: String(item.category || 'Starter'),
       cuisine: String(item.cuisine || 'Continental'),
       price: Number(item.price) || 0,
-      description: String(item.description || '')
+      description: String(item.description || ''),
       image: String(item.image || ''),
       images: Array.isArray(item.images) ? item.images.map(String) : (item.image ? [String(item.image)] : [])
+    }));
   }
 
   function loadAvailability() {
@@ -107,7 +108,7 @@
 
     qs('#admin-menu-list').innerHTML = matchingItems.map(item => {
       const isAvailable = availability[item.id] !== false;
-      return `<div class="admin-menu-item"><div><strong>${item.name}</strong><p>${item.cuisine} / ${item.category} / ${money(item.price)}</p></div><button type="button" class="availability-toggle ${isAvailable ? 'available' : ''}" aria-label="${isAvailable ? 'Hide' : 'Show'} ${item.name}" data-menu-id="${item.id}" aria-pressed="${isAvailable}"></button></div>`;
+      return `<div class="admin-menu-item"><div><strong>${item.name}</strong><p>${item.cuisine} / ${item.category} / ${money(item.price)}</p></div><div class="admin-menu-actions"><button type="button" class="availability-toggle ${isAvailable ? 'available' : ''}" aria-label="${isAvailable ? 'Hide' : 'Show'} ${item.name}" data-menu-id="${item.id}" aria-pressed="${isAvailable}"></button><button type="button" class="delete-menu-item" aria-label="Delete ${item.name}" data-delete-menu-id="${item.id}">Delete</button></div></div>`;
     }).join('');
 
     qs('#menu-search-empty').hidden = matchingItems.length > 0;
@@ -119,6 +120,19 @@
       renderStats();
       window.dispatchEvent(new CustomEvent('menu:updated'));
     }));
+    qsa('[data-delete-menu-id]').forEach(button => button.addEventListener('click', () => deleteMenuItem(button.dataset.deleteMenuId)));
+  }
+
+  function deleteMenuItem(id) {
+    const item = menuItems.find(entry => entry.id === id);
+    if (!item || !window.confirm(`Delete ${item.name} from the menu?`)) return;
+    menuItems = menuItems.filter(entry => entry.id !== id);
+    delete availability[id];
+    localStorage.setItem(menuDataKey, JSON.stringify(menuItems));
+    localStorage.setItem(menuKey, JSON.stringify(availability));
+    renderMenu();
+    renderStats();
+    window.dispatchEvent(new CustomEvent('menu:updated'));
   }
 
   async function uploadImageToCloudinary(file) {
@@ -225,6 +239,33 @@
     });
   }
 
+  function setupDishStyleOptions() {
+    const categoryField = qs('#dish-category');
+    const styleField = qs('select[name="cuisine"]');
+    if (!categoryField || !styleField) return;
+
+    const updateStyleOptions = () => {
+      const isDrink = categoryField.value === 'Drink';
+      qsa('[data-drink-style]', styleField).forEach(option => {
+        option.hidden = !isDrink;
+      });
+      qsa('[data-food-style]', styleField).forEach(option => {
+        option.hidden = isDrink;
+      });
+      const validFoodStyle = ['Continental', 'Fast food', 'Local dish'].includes(styleField.value);
+      const validDrinkStyle = qsa('[data-drink-style]', styleField).some(option => option.value === styleField.value);
+      if ((isDrink && !validDrinkStyle) || (!isDrink && !validFoodStyle)) {
+        styleField.value = isDrink ? 'Local drinks' : 'Continental';
+      }
+      if (!isDrink && styleField.value !== 'Continental' && styleField.value !== 'Fast food' && styleField.value !== 'Local dish') {
+        styleField.value = 'Continental';
+      }
+    };
+
+    categoryField.addEventListener('change', updateStyleOptions);
+    updateStyleOptions();
+  }
+
   function renderOrders() {
     const orders = JSON.parse(localStorage.getItem('velvet-plate-cart') || '[]');
     const target = qs('#admin-orders');
@@ -311,6 +352,7 @@
 
   qs('#add-menu-form')?.addEventListener('submit', addMenuItem);
   setupAddItemModal();
+  setupDishStyleOptions();
 
   seedDemoReservation();
   qs('#admin-date').textContent = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });

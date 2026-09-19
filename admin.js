@@ -106,7 +106,7 @@
 
     qs('#admin-menu-list').innerHTML = matchingItems.map(item => {
       const isAvailable = availability[item.id] !== false;
-      return `<div class="admin-menu-item"><div><strong>${item.name}</strong><p>${item.cuisine} / ${item.category} / ${money(item.price)}</p></div><div class="admin-menu-actions"><button type="button" class="availability-toggle ${isAvailable ? 'available' : ''}" aria-label="${isAvailable ? 'Hide' : 'Show'} ${item.name}" data-menu-id="${item.id}" aria-pressed="${isAvailable}"></button><button type="button" class="delete-menu-item" aria-label="Delete ${item.name}" data-delete-menu-id="${item.id}">Delete</button></div></div>`;
+      return `<div class="admin-menu-item"><div><strong>${item.name}</strong><p>${item.cuisine} / ${item.category} / ${money(item.price)}</p></div><div class="admin-menu-actions"><button type="button" class="availability-toggle ${isAvailable ? 'available' : ''}" aria-label="${isAvailable ? 'Make unavailable' : 'Make available'} ${item.name}" data-menu-id="${item.id}" aria-pressed="${isAvailable}"><span>${isAvailable ? 'Available' : 'Unavailable'}</span></button><button type="button" class="delete-menu-item" aria-label="Delete ${item.name}" data-delete-menu-id="${item.id}">Delete</button></div></div>`;
     }).join('');
 
     qs('#menu-search-empty').hidden = matchingItems.length > 0;

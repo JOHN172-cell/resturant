@@ -347,6 +347,19 @@
     .stat-card:nth-child(3) { background: #ffd6c9; }
     .stat-card:nth-child(4) { background: #d8eafa; }
     .admin-panel { background: #fffdf7; }
+    .orders-top-link { display: inline-flex; align-items: center; gap: 6px; padding: 8px 11px; border: 1px solid rgba(32, 32, 29, 0.35); color: #20201d; background: rgba(255, 253, 247, 0.72); font: 9px var(--mono); text-transform: uppercase; letter-spacing: .04em; }
+    .orders-top-link:hover { background: #fffdf7; color: #b44731; border-color: #b44731; }
+    .menu-only-grid { grid-template-columns: 1fr; }
+    .menu-control-panel { width: 100%; }
+    .admin-menu-item { padding: 24px 0; }
+    .admin-menu-item strong { font: 20px var(--display); color: #20201d; }
+    .admin-menu-item p { font-size: 13px; color: #514b43; opacity: 1; }
+    .admin-menu-actions { align-items: center; }
+    .availability-toggle { width: auto; min-width: 112px; height: 32px; display: inline-flex; align-items: center; justify-content: center; padding: 0 12px; color: #20201d; font: 10px var(--mono); text-transform: uppercase; letter-spacing: .03em; }
+    .availability-toggle:before { display: none; }
+    .availability-toggle.available { background: #d9f0d5; border-color: #5e9b68; color: #315d39; }
+    .availability-toggle:not(.available) { background: #f3d7d1; border-color: #c1553d; color: #963e34; }
+    @media (max-width: 520px) { .orders-top-link { font-size: 8px; padding: 7px 8px; } .admin-menu-item { align-items: flex-start; } .admin-menu-actions { flex-direction: column; align-items: stretch; } }
     .service-toggle { display: inline-flex; align-items: center; gap: 8px; border: 1px solid #5e9b68; border-radius: 999px; background: #d9f0d5; color: #315d39; padding: 7px 10px; font: 9px var(--mono); text-transform: uppercase; cursor: pointer; }
     .service-toggle-dot { width: 8px; height: 8px; border-radius: 50%; background: #5e9b68; }
     .service-toggle:not(.is-on) { border-color: #c1553d; background: #f3d7d1; color: #963e34; }
@@ -398,6 +411,7 @@
       <a class="brand" href="index.html" aria-label="Back to The Velvet Plate home"><span class="brand-mark">V<span>P</span></span><span class="brand-name">The Velvet<br><em>Plate</em></span></a>
       <div class="admin-header-label"><span>Staff console</span><strong>Operations / Today</strong></div>
       <div class="admin-header-actions">
+        <a class="orders-top-link" href="orders.html">Orders & reservations <span>↗</span></a>
         <button class="admin-lock" id="admin-lock" type="button" aria-label="Lock console">
           <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M7 10V8a5 5 0 0 1 10 0v2M6 10h12a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2Zm6 3.5v2.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </button>
@@ -410,7 +424,7 @@
       <section class="admin-content-grid">
         <aside class="admin-panel service-panel"><div class="panel-heading"><div><p class="eyebrow">Kitchen & bar</p><h2>Service notes</h2></div><button class="service-toggle is-on" id="service-toggle" type="button" aria-pressed="true"><span class="service-toggle-dot"></span><span id="service-toggle-label">Service on</span></button></div><ul class="service-list"><li><span class="status-dot live" id="service-status-dot"></span><div><strong>Tonight’s menu</strong><p id="service-status-copy">Live and visible to guests</p></div><span class="service-time" id="service-status-time">LIVE</span></li><li><span class="status-dot"></span><div><strong>Pickup ordering</strong><p>Mock checkout enabled</p></div><span class="service-time">TEST</span></li></ul><div class="service-tip"><span>Tip</span><p>Confirm large parties by phone on the orders and reservations page.</p></div></aside>
       </section>
-      <section class="admin-content-grid lower-admin-grid">
+      <section class="admin-content-grid menu-only-grid">
         <div class="admin-panel menu-control-panel"><div class="panel-heading"><div><p class="eyebrow">Availability</p><h2>Menu items</h2></div><div class="menu-panel-tools"><span class="panel-note">Toggle what guests can order</span><button class="add-item-trigger" id="open-add-item" type="button" aria-label="Add menu item" aria-controls="add-item-modal" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button></div></div>
           <div class="add-item-modal" id="add-item-modal" role="dialog" aria-modal="true" aria-labelledby="add-item-title" hidden><div class="add-item-dialog"><div class="add-item-dialog-header"><div><h2 id="add-item-title">Add a menu item</h2><p>Create a dish for the guest menu.</p></div><button class="add-item-close" id="close-add-item" type="button" aria-label="Close add item dialog">×</button></div>
           <form id="add-menu-form" class="admin-menu-form">
@@ -457,7 +471,6 @@
           <div class="admin-menu-list" id="admin-menu-list"></div>
           <div class="admin-empty" id="menu-search-empty" hidden>No menu items match that search.</div>
         </div>
-        <div class="admin-panel order-panel"><div class="panel-heading"><div><p class="eyebrow">Takeout</p><h2>Order receiving</h2></div><span class="panel-note">Separate workspace</span></div><p class="order-handoff-copy">Orders and reservations are received on the combined service page.</p><a class="button button-dark order-handoff" href="orders.html">Open orders & reservations <span>↗</span></a></div>
       </section>
       <p class="admin-disclaimer">Frontend demo console. Connect these controls to authenticated server endpoints and a database before using this page for real restaurant operations.</p>
     </main>

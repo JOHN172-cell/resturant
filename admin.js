@@ -132,7 +132,7 @@
 
   function deleteMenuItem(id) {
     const item = menuItems.find(entry => entry.id === id);
-    if (!item || !window.confirm(`Delete ${item.name} from the menu?`)) return;
+    if (!item) return;
     menuItems = menuItems.filter(entry => entry.id !== id);
     delete availability[id];
     localStorage.setItem(menuDataKey, JSON.stringify(menuItems));

@@ -212,7 +212,6 @@
   function deleteReservation(id) {
     const res = reservations.find(r => r.id === id);
     if (!res) return;
-    if (!window.confirm(`Delete reservation record for ${res.name}?`)) return;
     reservations = reservations.filter(r => r.id !== id);
     saveReservations();
   }

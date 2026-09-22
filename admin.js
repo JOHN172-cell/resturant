@@ -155,7 +155,6 @@
   function deleteMenuItem(id) {
     const item = menuItems.find(entry => entry.id === id);
     if (!item) return;
-    if (!window.confirm(`Are you sure you want to remove "${item.name}" from the menu?`)) return;
 
     menuItems = menuItems.filter(entry => entry.id !== id);
     delete availability[id];

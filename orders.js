@@ -2,75 +2,229 @@
   'use strict';
 
   const ordersKey = 'velvet-plate-orders';
-  const reservationsKey = 'velvet-plate-reservations';
-  const qs = selector => document.querySelector(selector);
-  const qsa = selector => [...document.querySelectorAll(selector)];
-  let orders = JSON.parse(localStorage.getItem(ordersKey) || '[]');
-  let reservations = JSON.parse(localStorage.getItem(reservationsKey) || '[]');
+  const qs = (selector, parent = document) => parent.querySelector(selector);
+  const qsa = (selector, parent = document) => [...parent.querySelectorAll(selector)];
+
+  let orders = loadOrders();
+
+  function loadOrders() {
+    const raw = localStorage.getItem(ordersKey);
+    let list = [];
+    try {
+      list = JSON.parse(raw || '[]');
+    } catch (e) {
+      list = [];
+    }
+    if (!Array.isArray(list) || list.length === 0) {
+      // Seed a couple demo tickets if empty so the screen is immediately lively
+      list = [
+        {
+          id: `order-demo-1`,
+          createdAt: new Date(Date.now() - 1000 * 60 * 12).toISOString(),
+          status: 'new',
+          items: [
+            { name: 'Coal-roasted chicken', quantity: 1, price: 28, vegan: false, spice: 'Medium', extras: ['Crispy shallots'], exclusions: '' },
+            { name: 'Charred carrots', quantity: 2, price: 12, vegan: true, spice: 'Mild', extras: [], exclusions: 'pistachio' }
+          ]
+        },
+        {
+          id: `order-demo-2`,
+          createdAt: new Date(Date.now() - 1000 * 60 * 25).toISOString(),
+          status: 'progress',
+          items: [
+            { name: 'Hanger steak', quantity: 2, price: 34, vegan: false, spice: 'Hot', extras: ['Side of bread'], exclusions: '' },
+            { name: 'Salted grapefruit spritz', quantity: 2, price: 14, vegan: false, spice: 'Mild', extras: [], exclusions: '' }
+          ]
+        }
+      ];
+      localStorage.setItem(ordersKey, JSON.stringify(list));
+    }
+    return list;
+  }
+
+  function saveOrders() {
+    localStorage.setItem(ordersKey, JSON.stringify(orders));
+    render();
+  }
 
   function render() {
     const groups = { new: [], progress: [], done: [] };
-    orders.forEach(order => groups[order.status === 'new' ? 'new' : order.status === 'progress' ? 'progress' : 'done'].push(order));
-    qs('#new-order-count').textContent = groups.new.length;
-    qs('#active-order-count').textContent = groups.progress.length;
-    qs('#new-column-count').textContent = groups.new.length;
-    qs('#progress-column-count').textContent = groups.progress.length;
-    qs('#done-column-count').textContent = groups.done.length;
-    renderGroup('#new-orders', groups.new, 'progress', 'Start preparing');
-    renderGroup('#progress-orders', groups.progress, 'done', 'Mark ready');
+    orders.forEach(order => {
+      const status = order.status === 'new' ? 'new' : order.status === 'progress' ? 'progress' : 'done';
+      groups[status].push(order);
+    });
+
+    const newCount = qs('#new-order-count');
+    const activeCount = qs('#active-order-count');
+    const doneCount = qs('#done-order-count');
+    const newColCount = qs('#new-column-count');
+    const progColCount = qs('#progress-column-count');
+    const doneColCount = qs('#done-column-count');
+
+    if (newCount) newCount.textContent = groups.new.length;
+    if (activeCount) activeCount.textContent = groups.progress.length;
+    if (doneCount) doneCount.textContent = groups.done.length;
+
+    if (newColCount) newColCount.textContent = groups.new.length;
+    if (progColCount) progColCount.textContent = groups.progress.length;
+    if (doneColCount) doneColCount.textContent = groups.done.length;
+
+    renderGroup('#new-orders', groups.new, 'progress', 'Start preparing →');
+    renderGroup('#progress-orders', groups.progress, 'done', 'Mark ready for pickup ✓');
     renderGroup('#done-orders', groups.done, 'done', 'Completed');
   }
 
   function renderGroup(selector, items, nextStatus, actionLabel) {
     const target = qs(selector);
-    if (!items.length) { target.innerHTML = '<div class="order-empty">Nothing here right now.</div>'; return; }
-    target.innerHTML = items.slice().reverse().map(order => `<article class="order-card ${order.status}"><div class="order-card-top"><strong>Order #${order.id.slice(-4)}</strong><time>${new Date(order.createdAt).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}</time></div><ul class="order-items">${order.items.map(item => `<li><strong>${item.quantity} × ${item.name}</strong><span>GH₵${(item.price * item.quantity).toFixed(2)}</span></li>`).join('')}</ul><p class="order-preferences">${order.items.map(item => `${item.vegan ? 'Vegan' : 'Standard'} / ${item.spice}${item.extras.length ? ` / + ${item.extras.join(', ')}` : ''}${item.exclusions ? ` / No: ${item.exclusions}` : ''}`).join('<br>')}</p><button type="button" class="order-action" data-order-id="${order.id}" data-next-status="${nextStatus}" ${order.status === 'done' ? 'disabled' : ''}>${actionLabel}</button></article>`).join('');
-    qsa(`${selector} [data-order-id]`).forEach(button => button.addEventListener('click', () => updateOrder(button.dataset.orderId, button.dataset.nextStatus)));
+    if (!target) return;
+
+    if (!items.length) {
+      target.innerHTML = '<div class="order-empty">No tickets in this column.</div>';
+      return;
+    }
+
+    target.innerHTML = items
+      .slice()
+      .reverse()
+      .map(order => {
+        const orderNum = order.id ? order.id.slice(-4) : '0000';
+        const timeFormatted = order.createdAt
+          ? new Date(order.createdAt).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })
+          : 'Just now';
+
+        const orderTotal = (order.items || []).reduce(
+          (sum, item) => sum + (Number(item.price) || 0) * (Number(item.quantity) || 1),
+          0
+        );
+
+        const itemsHtml = (order.items || [])
+          .map(
+            item => `
+            <li>
+              <strong>${item.quantity} × ${item.name}</strong>
+              <span>GH₵${((item.price || 0) * (item.quantity || 1)).toFixed(2)}</span>
+            </li>
+          `
+          )
+          .join('');
+
+        const prefsHtml = (order.items || [])
+          .map(item => {
+            const extrasText = item.extras && item.extras.length ? ` / + ${item.extras.join(', ')}` : '';
+            const exclusionsText = item.exclusions ? ` / No: ${item.exclusions}` : '';
+            return `${item.vegan ? 'Vegan' : 'Standard'} / ${item.spice || 'Mild'}${extrasText}${exclusionsText}`;
+          })
+          .join('<br>');
+
+        return `
+          <article class="order-card ${order.status}">
+            <div class="order-card-top">
+              <div>
+                <strong>Order #${orderNum}</strong>
+                <time style="display:block; font-size:10px; opacity:0.6; margin-top:2px;">${timeFormatted}</time>
+              </div>
+              <strong style="color:var(--tomato); font-size:13px;">GH₵${orderTotal.toFixed(2)}</strong>
+            </div>
+            <ul class="order-items">
+              ${itemsHtml}
+            </ul>
+            ${prefsHtml ? `<p class="order-preferences">${prefsHtml}</p>` : ''}
+            <div style="display:flex; gap:8px; margin-top:16px;">
+              <button type="button" class="order-action" data-order-id="${order.id}" data-next-status="${nextStatus}" ${order.status === 'done' ? 'disabled' : ''}>
+                ${actionLabel}
+              </button>
+              ${
+                order.status === 'done'
+                  ? `<button type="button" class="order-remove-btn" data-delete-id="${order.id}" title="Remove ticket">×</button>`
+                  : ''
+              }
+            </div>
+          </article>
+        `;
+      })
+      .join('');
+
+    qsa(`${selector} [data-order-id]`).forEach(button => {
+      button.addEventListener('click', () => {
+        updateOrder(button.dataset.orderId, button.dataset.nextStatus);
+      });
+    });
+
+    qsa(`${selector} [data-delete-id]`).forEach(button => {
+      button.addEventListener('click', () => {
+        deleteOrder(button.dataset.deleteId);
+      });
+    });
   }
 
   function updateOrder(id, status) {
     const order = orders.find(item => item.id === id);
     if (!order) return;
     order.status = status;
-    localStorage.setItem(ordersKey, JSON.stringify(orders));
-    render();
+    saveOrders();
   }
 
-  function formatDate(value) {
-    if (!value) return 'Date pending';
-    return new Date(`${value}T12:00:00`).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  function deleteOrder(id) {
+    orders = orders.filter(item => item.id !== id);
+    saveOrders();
   }
 
-  function renderReservations(filter = 'all') {
-    const list = qs('#reservation-list');
-    const empty = qs('#reservation-empty');
-    if (!list || !empty) return;
-    const visible = reservations.filter(item => filter === 'all' || item.status === filter);
-    empty.hidden = visible.length > 0;
-    list.innerHTML = visible.map(item => `<tr><td>${item.name}<small>${item.email}</small></td><td>${formatDate(item.date)}<small>${item.time}</small></td><td>${item.party}</td><td>${item.seating || 'No preference'}</td><td><span class="reservation-status ${item.status}">${item.status}</span></td><td><div class="table-actions">${item.status === 'pending' ? `<button type="button" data-reservation-action="confirmed" data-id="${item.id}">Confirm</button><button type="button" data-reservation-action="cancelled" data-id="${item.id}">Decline</button>` : `<button type="button" data-reservation-action="pending" data-id="${item.id}">Reopen</button>`}</div></td></tr>`).join('');
-    qsa('[data-reservation-action]').forEach(button => button.addEventListener('click', () => updateReservation(button.dataset.id, button.dataset.reservationAction, filter)));
+  // Date Header
+  const dateEl = qs('#orders-date');
+  if (dateEl) {
+    dateEl.textContent = new Date().toLocaleDateString('en-US', {
+      weekday: 'long',
+      month: 'short',
+      day: 'numeric'
+    });
   }
 
-  function updateReservation(id, status, filter) {
-    const reservation = reservations.find(item => item.id === id);
-    if (!reservation) return;
-    reservation.status = status;
-    localStorage.setItem(reservationsKey, JSON.stringify(reservations));
-    renderReservations(filter);
+  // Refresh Button
+  const refreshBtn = qs('#refresh-orders');
+  if (refreshBtn) {
+    refreshBtn.addEventListener('click', () => {
+      try {
+        orders = JSON.parse(localStorage.getItem(ordersKey) || '[]');
+      } catch (e) {
+        orders = [];
+      }
+      render();
+      refreshBtn.textContent = 'Refreshed ✓';
+      setTimeout(() => {
+        refreshBtn.textContent = 'Refresh queue ↻';
+      }, 1000);
+    });
   }
 
-  qs('#orders-date').textContent = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
-  qs('#refresh-orders').addEventListener('click', () => {
-    orders = JSON.parse(localStorage.getItem(ordersKey) || '[]');
-    reservations = JSON.parse(localStorage.getItem(reservationsKey) || '[]');
-    render();
-    renderReservations();
-  });
-  qsa('[data-reservation-filter]').forEach(button => button.addEventListener('click', () => {
-    qsa('[data-reservation-filter]').forEach(item => item.classList.remove('active'));
-    button.classList.add('active');
-    renderReservations(button.dataset.reservationFilter);
-  }));
+  // Add Demo Order Button (Convenient for live testing)
+  const addDemoBtn = qs('#add-demo-order');
+  if (addDemoBtn) {
+    addDemoBtn.addEventListener('click', () => {
+      const demoNames = ['Coal-roasted chicken', 'Burnt honey panna cotta', 'Hanger steak', 'Ember oysters', 'Salted grapefruit spritz'];
+      const chosen = demoNames[Math.floor(Math.random() * demoNames.length)];
+      const newOrder = {
+        id: `order-${Date.now()}`,
+        createdAt: new Date().toISOString(),
+        status: 'new',
+        items: [
+          { name: chosen, quantity: 1, price: 24, vegan: false, spice: 'Medium', extras: [], exclusions: '' }
+        ]
+      };
+      orders.push(newOrder);
+      saveOrders();
+    });
+  }
+
+  // Auto poll every 10 seconds for new orders placed in other tabs
+  setInterval(() => {
+    try {
+      const stored = JSON.parse(localStorage.getItem(ordersKey) || '[]');
+      if (stored.length !== orders.length) {
+        orders = stored;
+        render();
+      }
+    } catch (e) {}
+  }, 10000);
+
   render();
-  renderReservations();
 })();

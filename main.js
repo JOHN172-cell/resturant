@@ -49,7 +49,7 @@
   function setupStaffAccess() {
     const footer = qs('.site-footer');
     if (!footer || qs('.staff-links', footer)) return;
-    footer.insertAdjacentHTML('beforeend', '<small class="staff-links">Staff access · <a href="admin.html">Admin</a> · <a href="orders.html">Orders</a></small>');
+    footer.insertAdjacentHTML('beforeend', '<small class="staff-links">Staff access · <a href="admin.html">Admin</a> · <a href="orders.html">Orders</a> · <a href="reservations.html">Reservations</a></small>');
   }
 
   function openCart() {

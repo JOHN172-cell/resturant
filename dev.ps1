@@ -3,8 +3,19 @@ $url = "http://localhost:$port/"
 $listener = Get-NetTCPConnection -LocalPort $port -State Listen -ErrorAction SilentlyContinue
 
 if (-not $listener) {
-  Start-Process -FilePath "python" -ArgumentList "-m http.server $port" -WorkingDirectory $PSScriptRoot
+  Write-Host "Starting server on port $port..."
+  $psi = New-Object System.Diagnostics.ProcessStartInfo
+  $psi.FileName = "python"
+  $psi.Arguments = "-m http.server $port"
+  $psi.WorkingDirectory = $PSScriptRoot
+  $psi.WindowStyle = [System.Diagnostics.ProcessWindowStyle]::Minimized
+  $psi.CreateNoWindow = $false
+  $proc = [System.Diagnostics.Process]::Start($psi)
+  Write-Host "Server PID: $($proc.Id)"
+  Start-Sleep -Milliseconds 1500
 }
 
 Start-Process $url
 Write-Host "The Velvet Plate is running at $url"
+Write-Host "Press Ctrl+C or close this window to stop the server."
+Wait-Process -Id (Get-NetTCPConnection -LocalPort $port -State Listen -ErrorAction SilentlyContinue | Select-Object -First 1 -ExpandProperty OwningProcess) -ErrorAction SilentlyContinue

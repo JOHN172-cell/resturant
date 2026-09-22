@@ -258,13 +258,51 @@
     output.classList.toggle('success', success);
   }
 
+  function setupResSlideshow() {
+    const slides = qsa('.res-bg-slide');
+    if (!slides.length) return;
+    let index = 0;
+    setInterval(() => {
+      index = (index + 1) % slides.length;
+      slides.forEach((slide, i) => {
+        slide.classList.toggle('is-active', i === index);
+      });
+    }, 4500);
+  }
+
   function setupForms() {
     const reservationForm = qs('#reservation-form');
     reservationForm?.addEventListener('submit', event => {
       event.preventDefault();
       if (!reservationForm.checkValidity()) { showMessage(reservationForm, 'Please fill in each required field.'); reservationForm.reportValidity(); return; }
       const data = new FormData(reservationForm);
-      const resPayload = { id: `reservation-${Date.now()}`, name: data.get('name'), email: data.get('email'), phone: data.get('phone'), date: data.get('date'), time: data.get('time'), party: data.get('party'), seating: data.get('seating'), notes: data.get('notes'), status: 'pending' };
+      const name = data.get('name');
+      const email = data.get('email');
+      const date = data.get('date');
+      const time = data.get('time');
+      const party = data.get('party');
+      const allergies = data.get('allergies') ? String(data.get('allergies')).trim() : '';
+      const occasion = data.get('occasion') ? String(data.get('occasion')).trim() : '';
+      const phone = '+233 503658302';
+
+      const notesArr = [];
+      if (allergies) notesArr.push(`Allergies: ${allergies}`);
+      if (occasion) notesArr.push(`Occasion: ${occasion}`);
+
+      const resPayload = {
+        id: `reservation-${Date.now()}`,
+        name,
+        email,
+        phone,
+        date,
+        time,
+        party: party || '2 Guests',
+        allergies,
+        occasion,
+        notes: notesArr.join(' | ') || 'Standard Table Reservation',
+        status: 'pending'
+      };
+
       const reservations = JSON.parse(localStorage.getItem('velvet-plate-reservations') || '[]');
       reservations.push(resPayload);
       localStorage.setItem('velvet-plate-reservations', JSON.stringify(reservations));
@@ -276,7 +314,7 @@
         body: JSON.stringify(resPayload)
       }).catch(err => console.log('Backend API sync notice:', err));
 
-      showMessage(reservationForm, `Thanks, ${data.get('name')}. Your table for ${data.get('party')} on ${data.get('date')} at ${data.get('time')} is requested. We’ll confirm by email shortly.`, true);
+      showMessage(reservationForm, `🎉 Table Requested! Thank you, ${name}. Your table for ${party} on ${date} at ${time} has been submitted. We look forward to welcoming you!`, true);
       reservationForm.reset();
     });
     const contactForm = qs('#contact-form');
@@ -296,6 +334,7 @@
   setupCustomization();
   setupCheckout();
   setupForms();
+  setupResSlideshow();
   renderCart();
   normalizeCurrencyLabels();
 

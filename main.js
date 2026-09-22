@@ -99,6 +99,15 @@
     if (!menuGrid) return;
 
     const menuItems = loadMenuItems();
+    const currentIds = new Set(menuItems.map(item => item.id));
+
+    // Remove cards for items that have been deleted from admin
+    qsa('.menu-card', menuGrid).forEach(card => {
+      if (card.dataset.id && !currentIds.has(card.dataset.id)) {
+        card.remove();
+      }
+    });
+
     if (!menuItems.length) return;
 
     const menuCards = qsa('.menu-card', menuGrid);
@@ -120,8 +129,12 @@
 
   function applyMenuAvailability() {
     const availability = JSON.parse(localStorage.getItem('velvet-plate-availability') || '{}');
+    const menuData = JSON.parse(localStorage.getItem('velvet-plate-menu-data') || '[]');
+    const validIds = new Set(menuData.map(item => String(item.id)));
     qsa('.menu-card').forEach(card => {
-      if (availability[card.dataset.id] === false) card.remove();
+      const id = card.dataset.id;
+      // Remove if marked unavailable OR if the item has been deleted entirely
+      if (availability[id] === false || (id && !validIds.has(id))) card.remove();
     });
   }
 

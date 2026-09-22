@@ -480,8 +480,21 @@
   setupForms();
   setupResSlideshow();
   setupMenuSlideshow();
+  setupAboutSlideshow();
   renderCart();
   normalizeCurrencyLabels();
+
+  function setupAboutSlideshow() {
+    const slides = qsa('.about-bg-slide');
+    if (!slides.length) return;
+    let index = 0;
+    setInterval(() => {
+      index = (index + 1) % slides.length;
+      slides.forEach((slide, i) => {
+        slide.classList.toggle('is-active', i === index);
+      });
+    }, 4500);
+  }
 
   window.addEventListener('menu:updated', () => {
     renderDynamicMenu();

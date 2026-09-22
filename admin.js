@@ -11,17 +11,25 @@
     cloudName: '',
     uploadPreset: ''
   };
+
   const defaultMenuItems = [
-    { id: 'carrots', name: 'Charred carrots', category: 'Starter', price: 12, description: 'whipped feta, sumac, pistachio' },
-    { id: 'oysters', name: 'Ember oysters', category: 'Starter', price: 18, description: 'cider mignonette, smoked chili' },
-    { id: 'chicken', name: 'Coal-roasted chicken', category: 'Main', price: 28, description: 'preserved lemon, chicken jus' },
-    { id: 'steak', name: 'Hanger steak', category: 'Main', price: 34, description: 'green peppercorn, crispy potato' },
-    { id: 'panna', name: 'Burnt honey panna cotta', category: 'Dessert', price: 11, description: 'rhubarb, oat crumble' },
-    { id: 'spritz', name: 'Salted grapefruit spritz', category: 'Drink', price: 14, description: 'grapefruit, fino sherry, bubbles' }
+    { id: 'carrots', name: 'Charred carrots', category: 'Starter', cuisine: 'Continental', price: 12, description: 'whipped feta, sumac, pistachio', image: 'https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?auto=format&fit=crop&w=400&q=80' },
+    { id: 'oysters', name: 'Ember oysters', category: 'Starter', cuisine: 'Continental', price: 18, description: 'cider mignonette, smoked chili', image: 'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=400&q=80' },
+    { id: 'chicken', name: 'Coal-roasted chicken', category: 'Main', cuisine: 'Continental', price: 28, description: 'preserved lemon, chicken jus', image: 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&fit=crop&w=400&q=80' },
+    { id: 'steak', name: 'Hanger steak', category: 'Main', cuisine: 'Continental', price: 34, description: 'green peppercorn, crispy potato', image: 'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=400&q=80' },
+    { id: 'panna', name: 'Burnt honey panna cotta', category: 'Dessert', cuisine: 'Continental', price: 11, description: 'rhubarb, oat crumble', image: 'https://images.unsplash.com/photo-1551024506-0bccd828d307?auto=format&fit=crop&w=400&q=80' },
+    { id: 'spritz', name: 'Salted grapefruit spritz', category: 'Drink', cuisine: 'Local drinks', price: 14, description: 'grapefruit, fino sherry, bubbles', image: 'https://images.unsplash.com/photo-1544145945-f90425340c7e?auto=format&fit=crop&w=400&q=80' }
   ];
 
-  const qs = selector => document.querySelector(selector);
-  const qsa = selector => [...document.querySelectorAll(selector)];
+  const categoryFallbacks = {
+    Starter: 'https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?auto=format&fit=crop&w=400&q=80',
+    Main: 'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=400&q=80',
+    Dessert: 'https://images.unsplash.com/photo-1551024506-0bccd828d307?auto=format&fit=crop&w=400&q=80',
+    Drink: 'https://images.unsplash.com/photo-1544145945-f90425340c7e?auto=format&fit=crop&w=400&q=80'
+  };
+
+  const qs = (selector, parent = document) => parent.querySelector(selector);
+  const qsa = (selector, parent = document) => [...parent.querySelectorAll(selector)];
   const money = value => `GH₵${Number(value).toFixed(2)}`;
 
   let reservations = JSON.parse(localStorage.getItem(reservationsKey) || '[]');
@@ -42,7 +50,7 @@
       cuisine: String(item.cuisine || 'Continental'),
       price: Number(item.price) || 0,
       description: String(item.description || ''),
-      image: String(item.image || ''),
+      image: String(item.image || (Array.isArray(item.images) ? item.images[0] : '') || ''),
       images: Array.isArray(item.images) ? item.images.map(String) : (item.image ? [String(item.image)] : [])
     }));
   }
@@ -57,48 +65,38 @@
   }
 
   function slugify(value) {
-    return String(value || '').toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') || `dish-${Date.now()}`;
-  }
-
-  function formatDate(value) {
-    if (!value) return 'Date pending';
-    return new Date(`${value}T12:00:00`).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-  }
-
-  function seedDemoReservation() {
-    if (reservations.length) return;
-    reservations = [{ id: 'demo-1', name: 'Maya Stone', email: 'maya@example.com', phone: '(718) 555-0147', date: new Date().toISOString().slice(0, 10), time: '7:00 PM', party: '2 guests', seating: 'Window', notes: 'Birthday dinner', status: 'pending' }];
-    localStorage.setItem(reservationsKey, JSON.stringify(reservations));
+    return String(value || '')
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/(^-|-$)/g, '') || `dish-${Date.now()}`;
   }
 
   function renderStats() {
-    const covers = reservations.filter(item => item.status !== 'cancelled').reduce((sum, item) => sum + Number.parseInt(item.party, 10) || 0, 0);
+    const covers = reservations
+      .filter(item => item.status !== 'cancelled')
+      .reduce((sum, item) => sum + (Number.parseInt(item.party, 10) || 0), 0);
     const cart = JSON.parse(localStorage.getItem('velvet-plate-cart') || '[]');
     const ordersStat = qs('#orders-stat');
     const menuStat = qs('#menu-stat');
+    const coversStat = qs('#covers-stat');
+    const serviceSummaryStat = qs('#service-summary-stat');
+
     if (ordersStat) ordersStat.textContent = cart.reduce((sum, item) => sum + item.quantity, 0);
     if (menuStat) menuStat.textContent = menuItems.filter(item => availability[item.id] !== false).length;
-  }
-
-  function renderReservations(filter = 'all') {
-    const list = qs('#reservation-list');
-    const empty = qs('#reservation-empty');
-    const visible = reservations.filter(item => filter === 'all' || item.status === filter);
-    empty.hidden = visible.length > 0;
-    list.innerHTML = visible.map(item => `<tr><td>${item.name}<small>${item.email}</small></td><td>${formatDate(item.date)}<small>${item.time}</small></td><td>${item.party}</td><td>${item.seating || 'No preference'}</td><td><span class="reservation-status ${item.status}">${item.status}</span></td><td><div class="table-actions">${item.status === 'pending' ? `<button type="button" data-reservation-action="confirmed" data-id="${item.id}">Confirm</button><button type="button" data-reservation-action="cancelled" data-id="${item.id}">Decline</button>` : `<button type="button" data-reservation-action="pending" data-id="${item.id}">Reopen</button>`}</div></td></tr>`).join('');
-    qsa('[data-reservation-action]').forEach(button => button.addEventListener('click', () => updateReservation(button.dataset.id, button.dataset.reservationAction)));
-  }
-
-  function updateReservation(id, status) {
-    const reservation = reservations.find(item => item.id === id);
-    if (!reservation) return;
-    reservation.status = status;
-    localStorage.setItem(reservationsKey, JSON.stringify(reservations));
-    renderReservations();
-    renderStats();
+    if (coversStat) coversStat.textContent = covers;
+    if (serviceSummaryStat) {
+      const active = localStorage.getItem(serviceKey) !== 'false';
+      serviceSummaryStat.textContent = active ? 'LIVE' : 'OFF';
+      serviceSummaryStat.style.color = active ? '#315d39' : '#c1553d';
+    }
   }
 
   function renderMenu() {
+    const container = qs('#admin-menu-list');
+    const emptyNotice = qs('#menu-search-empty');
+    if (!container) return;
+
     const searchTerm = menuSearch.trim().toLowerCase();
     const matchingItems = menuItems.filter(item => {
       if (!searchTerm) return true;
@@ -106,33 +104,59 @@
       return haystack.includes(searchTerm);
     });
 
-    const fallbackImages = {
-      Starter: 'https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?auto=format&fit=crop&w=240&q=80',
-      Main: 'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=240&q=80',
-      Dessert: 'https://images.unsplash.com/photo-1551024506-0bccd828d307?auto=format&fit=crop&w=240&q=80',
-      Drink: 'https://images.unsplash.com/photo-1544145945-f90425340c7e?auto=format&fit=crop&w=240&q=80'
-    };
-    qs('#admin-menu-list').innerHTML = matchingItems.map(item => {
+    container.innerHTML = matchingItems.map(item => {
       const isAvailable = availability[item.id] !== false;
-      const image = item.image || item.images?.[0] || fallbackImages[item.category] || fallbackImages.Main;
-      return `<div class="admin-menu-item"><div class="admin-menu-thumb" role="img" aria-label="${item.name} preview" style="background-image:url('${image}')"></div><div><strong>${item.name}</strong><p>${item.cuisine} / ${item.category} / ${money(item.price)}</p></div><div class="admin-menu-actions"><button type="button" class="availability-toggle ${isAvailable ? 'available' : ''}" aria-label="${isAvailable ? 'Make unavailable' : 'Make available'} ${item.name}" data-menu-id="${item.id}" aria-pressed="${isAvailable}"><span>${isAvailable ? 'Available' : 'Unavailable'}</span></button><button type="button" class="delete-menu-item" aria-label="Delete ${item.name}" data-delete-menu-id="${item.id}">Delete</button></div></div>`;
+      const image = item.image || (item.images && item.images[0]) || categoryFallbacks[item.category] || categoryFallbacks.Main;
+      return `
+        <div class="admin-menu-item">
+          <div class="admin-menu-thumb" role="img" aria-label="${item.name} preview" style="background-image:url('${image}')"></div>
+          <div>
+            <strong>${item.name}</strong>
+            <p>${item.cuisine} · ${item.category} · ${money(item.price)}</p>
+            ${item.description ? `<p style="font-size: 11px; opacity: 0.75; margin-top: 3px;">${item.description}</p>` : ''}
+          </div>
+          <div class="admin-menu-actions">
+            <button type="button" class="availability-toggle ${isAvailable ? 'available' : ''}" aria-label="${isAvailable ? 'Set as unavailable' : 'Set as available'} ${item.name}" data-menu-id="${item.id}" aria-pressed="${isAvailable}">
+              <span>${isAvailable ? 'Available' : 'Unavailable'}</span>
+            </button>
+            <button type="button" class="delete-menu-item" aria-label="Delete ${item.name}" data-delete-menu-id="${item.id}">
+              Delete
+            </button>
+          </div>
+        </div>
+      `;
     }).join('');
 
-    qs('#menu-search-empty').hidden = matchingItems.length > 0;
-    qsa('[data-menu-id]').forEach(button => button.addEventListener('click', () => {
-      const id = button.dataset.menuId;
-      availability[id] = availability[id] === false;
-      localStorage.setItem(menuKey, JSON.stringify(availability));
-      renderMenu();
-      renderStats();
-      window.dispatchEvent(new CustomEvent('menu:updated'));
-    }));
-    qsa('[data-delete-menu-id]').forEach(button => button.addEventListener('click', () => deleteMenuItem(button.dataset.deleteMenuId)));
+    if (emptyNotice) {
+      emptyNotice.hidden = matchingItems.length > 0;
+    }
+
+    // Bind availability toggles
+    qsa('[data-menu-id]', container).forEach(button => {
+      button.addEventListener('click', () => {
+        const id = button.dataset.menuId;
+        availability[id] = availability[id] === false;
+        localStorage.setItem(menuKey, JSON.stringify(availability));
+        renderMenu();
+        renderStats();
+        window.dispatchEvent(new CustomEvent('menu:updated'));
+      });
+    });
+
+    // Bind delete buttons
+    qsa('[data-delete-menu-id]', container).forEach(button => {
+      button.addEventListener('click', () => {
+        const id = button.dataset.deleteMenuId;
+        deleteMenuItem(id);
+      });
+    });
   }
 
   function deleteMenuItem(id) {
     const item = menuItems.find(entry => entry.id === id);
     if (!item) return;
+    if (!window.confirm(`Are you sure you want to remove "${item.name}" from the menu?`)) return;
+
     menuItems = menuItems.filter(entry => entry.id !== id);
     delete availability[id];
     localStorage.setItem(menuDataKey, JSON.stringify(menuItems));
@@ -142,26 +166,59 @@
     window.dispatchEvent(new CustomEvent('menu:updated'));
   }
 
+  function readFileAsDataUrl(file) {
+    return new Promise((resolve, reject) => {
+      if (!file.type.startsWith('image/')) {
+        return reject(new Error('Selected file is not a supported image format.'));
+      }
+      if (file.size > 10 * 1024 * 1024) {
+        return reject(new Error('Image must be smaller than 10MB.'));
+      }
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = () => reject(new Error('Failed to read image file.'));
+      reader.readAsDataURL(file);
+    });
+  }
+
   async function uploadImageToCloudinary(file) {
     if (!cloudinaryConfig.cloudName || !cloudinaryConfig.uploadPreset) {
-      throw new Error('Add your Cloudinary cloud name and unsigned upload preset in admin.js first.');
-    }
-    if (!file.type.startsWith('image/') || file.size > 10 * 1024 * 1024) {
-      throw new Error('Each picture must be an image smaller than 10MB.');
+      throw new Error('Cloudinary not configured');
     }
     const body = new FormData();
     body.append('file', file);
     body.append('upload_preset', cloudinaryConfig.uploadPreset);
-    const response = await fetch(`https://api.cloudinary.com/v1_1/${cloudinaryConfig.cloudName}/image/upload`, { method: 'POST', body });
-    if (!response.ok) throw new Error('Cloudinary could not upload one of the pictures.');
+    const response = await fetch(`https://api.cloudinary.com/v1_1/${cloudinaryConfig.cloudName}/image/upload`, {
+      method: 'POST',
+      body
+    });
+    if (!response.ok) throw new Error('Cloudinary upload failed.');
     const result = await response.json();
     return result.secure_url;
   }
 
-  async function uploadSelectedImages(files) {
-    const selectedFiles = [...files];
-    if (selectedFiles.length < 3) throw new Error('Please choose at least 3 pictures for this dish.');
-    return Promise.all(selectedFiles.map(uploadImageToCloudinary));
+  async function processSelectedImages(files, category) {
+    const selectedFiles = [...files].filter(f => f && f.size > 0);
+    if (!selectedFiles.length) {
+      return [categoryFallbacks[category] || categoryFallbacks.Main];
+    }
+
+    // Try Cloudinary if explicitly configured
+    if (cloudinaryConfig.cloudName && cloudinaryConfig.uploadPreset) {
+      try {
+        return await Promise.all(selectedFiles.map(uploadImageToCloudinary));
+      } catch (err) {
+        console.warn('Cloudinary upload unviable, falling back to local storage:', err);
+      }
+    }
+
+    // Otherwise read locally as data URLs
+    try {
+      return await Promise.all(selectedFiles.map(readFileAsDataUrl));
+    } catch (err) {
+      console.warn('Local file read error, falling back to default photo:', err);
+      return [categoryFallbacks[category] || categoryFallbacks.Main];
+    }
   }
 
   async function addMenuItem(event) {
@@ -172,18 +229,32 @@
     const category = String(formData.get('category') || 'Starter');
     const cuisine = String(formData.get('cuisine') || 'Continental');
     const price = Number(formData.get('price'));
-    const imageFiles = formData.getAll('images').filter(file => file.size);
+    const description = String(formData.get('description') || '').trim();
+    const imageFiles = formData.getAll('images').filter(file => file && file.size > 0);
 
     if (!name || !Number.isFinite(price) || price <= 0) {
+      alert('Please provide a valid dish name and price.');
       return;
+    }
+
+    const submitBtn = form.querySelector('button[type="submit"]');
+    const originalText = submitBtn ? submitBtn.textContent : '';
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Saving dish...';
     }
 
     let images = [];
     try {
-      images = await uploadSelectedImages(imageFiles);
+      images = await processSelectedImages(imageFiles, category);
     } catch (error) {
-      window.alert(error.message);
-      return;
+      console.error('Image processing error:', error);
+      images = [categoryFallbacks[category] || categoryFallbacks.Main];
+    } finally {
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.textContent = originalText;
+      }
     }
 
     const item = {
@@ -192,17 +263,16 @@
       category,
       cuisine,
       price,
-      description: `${cuisine} ${category.toLowerCase()} special`,
-      image: images[0] || '',
+      description: description || `${cuisine} ${category.toLowerCase()} specialty`,
+      image: images[0] || categoryFallbacks[category] || categoryFallbacks.Main,
       images
     };
 
-    const existingIndex = menuItems.findIndex(entry => entry.id === item.id || entry.name.toLowerCase() === name.toLowerCase());
+    const existingIndex = menuItems.findIndex(
+      entry => entry.id === item.id || entry.name.toLowerCase() === name.toLowerCase()
+    );
+
     if (existingIndex >= 0) {
-      if (!images.length) {
-        item.image = menuItems[existingIndex].image || '';
-        item.images = menuItems[existingIndex].images || [];
-      }
       menuItems[existingIndex] = { ...menuItems[existingIndex], ...item };
     } else {
       menuItems.push(item);
@@ -211,7 +281,11 @@
     availability[item.id] = true;
     localStorage.setItem(menuDataKey, JSON.stringify(menuItems));
     localStorage.setItem(menuKey, JSON.stringify(availability));
+
     form.reset();
+    const uploadStatus = qs('#upload-file-status');
+    if (uploadStatus) uploadStatus.textContent = '';
+
     renderMenu();
     renderStats();
     window.dispatchEvent(new CustomEvent('menu:updated'));
@@ -237,10 +311,13 @@
       trigger.setAttribute('aria-expanded', 'true');
       qs('#add-menu-form input[name="name"]')?.focus();
     });
+
     closeButton?.addEventListener('click', closeAddItemModal);
+
     modal.addEventListener('click', event => {
       if (event.target === modal) closeAddItemModal();
     });
+
     document.addEventListener('keydown', event => {
       if (event.key === 'Escape' && !modal.hidden) closeAddItemModal();
     });
@@ -259,13 +336,12 @@
       qsa('[data-food-style]', styleField).forEach(option => {
         option.hidden = isDrink;
       });
+
       const validFoodStyle = ['Continental', 'Fast food', 'Local dish'].includes(styleField.value);
       const validDrinkStyle = qsa('[data-drink-style]', styleField).some(option => option.value === styleField.value);
+
       if ((isDrink && !validDrinkStyle) || (!isDrink && !validFoodStyle)) {
         styleField.value = isDrink ? 'Local drinks' : 'Continental';
-      }
-      if (!isDrink && styleField.value !== 'Continental' && styleField.value !== 'Fast food' && styleField.value !== 'Local dish') {
-        styleField.value = 'Continental';
       }
     };
 
@@ -280,18 +356,30 @@
     if (!zone || !input) return;
 
     const updateStatus = files => {
-      if (status) status.textContent = files.length ? `${files.length} picture${files.length === 1 ? '' : 's'} selected` : '';
+      if (status) {
+        status.textContent = files.length
+          ? `${files.length} photo${files.length === 1 ? '' : 's'} selected and ready`
+          : '';
+      }
     };
+
     const openPicker = event => {
       if (event.target !== input) input.click();
     };
 
     zone.addEventListener('click', openPicker);
     zone.addEventListener('keydown', event => {
-      if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); input.click(); }
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        input.click();
+      }
     });
+
     input.addEventListener('change', () => updateStatus([...input.files]));
-    zone.addEventListener('dragover', event => { event.preventDefault(); zone.classList.add('is-dragging'); });
+    zone.addEventListener('dragover', event => {
+      event.preventDefault();
+      zone.classList.add('is-dragging');
+    });
     zone.addEventListener('dragleave', () => zone.classList.remove('is-dragging'));
     zone.addEventListener('drop', event => {
       event.preventDefault();
@@ -307,38 +395,24 @@
     const toggle = qs('#service-toggle');
     const label = qs('#service-toggle-label');
     const dot = qs('#service-status-dot');
-    const copy = qs('#service-status-copy');
-    const time = qs('#service-status-time');
     if (!toggle) return;
 
     const update = active => {
       toggle.classList.toggle('is-on', active);
       toggle.setAttribute('aria-pressed', String(active));
       if (label) label.textContent = active ? 'Service on' : 'Service off';
-      dot?.classList.toggle('live', active);
-      if (copy) copy.textContent = active ? 'Live and visible to guests' : 'Service paused for guests';
-      if (time) time.textContent = active ? 'LIVE' : 'PAUSED';
+      if (dot) dot.classList.toggle('is-on', active);
+      renderStats();
     };
 
     let active = localStorage.getItem(serviceKey) !== 'false';
     update(active);
+
     toggle.addEventListener('click', () => {
       active = !active;
       localStorage.setItem(serviceKey, String(active));
       update(active);
     });
-  }
-
-  function renderOrders() {
-    const orders = JSON.parse(localStorage.getItem('velvet-plate-cart') || '[]');
-    const target = qs('#admin-orders');
-    if (!target) return;
-    if (!orders.length) { target.innerHTML = '<div class="admin-empty">No open orders in this browser.</div>'; return; }
-    target.innerHTML = orders.map(item => `<article class="admin-order-item"><div><strong>${item.quantity} × ${item.name}</strong><p>${item.vegan ? 'Vegan' : 'Standard'} / ${item.spice}${item.exclusions ? ` / No: ${item.exclusions}` : ''}</p></div><strong>GH₵${(item.price * item.quantity).toFixed(2)}</strong></article>`).join('');
-  }
-
-  function setupFilters() {
-    qsa('[data-reservation-filter]').forEach(button => button.addEventListener('click', () => { qsa('[data-reservation-filter]').forEach(item => item.classList.remove('active')); button.classList.add('active'); renderReservations(button.dataset.reservationFilter); }));
   }
 
   function setupAuth() {
@@ -353,45 +427,56 @@
     const showPasswordButton = qs('#togglePw');
 
     const unlock = () => {
-      authPanel.hidden = true;
-      app.hidden = false;
+      document.body.classList.add('is-authenticated');
+      if (authPanel) authPanel.hidden = true;
+      if (app) app.hidden = false;
       loginSplash?.setAttribute('hidden', 'hidden');
       sessionStorage.setItem('velvet-plate-admin-auth', 'true');
+      renderStats();
+      renderMenu();
     };
 
     const lock = () => {
+      document.body.classList.remove('is-authenticated');
       sessionStorage.removeItem('velvet-plate-admin-auth');
-      app.hidden = true;
-      authPanel.hidden = false;
+      if (app) app.hidden = true;
+      if (authPanel) authPanel.hidden = false;
       loginSplash?.removeAttribute('hidden');
-      form.reset();
-      error.textContent = '';
+      if (form) form.reset();
+      if (error) error.textContent = '';
       usernameField?.focus();
     };
 
+    // Check existing session
     if (sessionStorage.getItem('velvet-plate-admin-auth') === 'true') {
       unlock();
+    } else {
+      document.body.classList.remove('is-authenticated');
     }
 
     form?.addEventListener('submit', event => {
       event.preventDefault();
-      const username = String(new FormData(form).get('username') || '').trim();
-      const password = String(new FormData(form).get('password') || '').trim();
+      const username = String(usernameField?.value || '').trim();
+      const password = String(passwordField?.value || '').trim();
 
       if (username === adminUsername && password === adminPassword) {
         unlock();
         return;
       }
 
-      error.textContent = 'Incorrect username or password. Please try again.';
-      form.reset();
-      usernameField?.focus();
+      if (error) {
+        error.textContent = 'Incorrect username or password. (Demo: admin123 / admin123)';
+      }
+      if (passwordField) passwordField.value = '';
+      passwordField?.focus();
     });
 
     showPasswordButton?.addEventListener('click', () => {
+      if (!passwordField) return;
       const isPassword = passwordField.type === 'password';
       passwordField.type = isPassword ? 'text' : 'password';
       showPasswordButton.textContent = isPassword ? 'Hide' : 'Show';
+      showPasswordButton.setAttribute('aria-label', isPassword ? 'Hide password' : 'Show password');
     });
 
     lockButton?.addEventListener('click', lock);
@@ -403,10 +488,13 @@
     if (!slides.length) return;
     setInterval(() => {
       currentSlideIndex = (currentSlideIndex + 1) % slides.length;
-      slides.forEach((slide, index) => slide.classList.toggle('is-active', index === currentSlideIndex));
+      slides.forEach((slide, index) => {
+        slide.classList.toggle('is-active', index === currentSlideIndex);
+      });
     }, 5000);
   }
 
+  // Initialize features
   startSlideshow('.admin-login-slide');
   startSlideshow('.admin-dashboard-slide');
 
@@ -422,10 +510,16 @@
   setupImageDropZone();
   setupServiceToggle();
 
-  qs('#admin-date').textContent = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
+  const dateSpan = qs('#admin-date');
+  if (dateSpan) {
+    dateSpan.textContent = new Date().toLocaleDateString('en-US', {
+      weekday: 'long',
+      month: 'short',
+      day: 'numeric'
+    });
+  }
+
   setupAuth();
   renderStats();
   renderMenu();
-  renderOrders();
-  setupFilters();
 })();

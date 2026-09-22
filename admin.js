@@ -144,6 +144,14 @@
         const id = button.dataset.menuId;
         availability[id] = availability[id] === false;
         localStorage.setItem(menuKey, JSON.stringify(availability));
+        
+        // Sync with API
+        fetch('/api/availability', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id, available: availability[id] })
+        }).catch(err => console.log('API sync notice:', err));
+
         renderMenu();
         renderStats();
         window.dispatchEvent(new CustomEvent('menu:updated'));
@@ -167,6 +175,11 @@
     delete availability[id];
     localStorage.setItem(menuDataKey, JSON.stringify(menuItems));
     localStorage.setItem(menuKey, JSON.stringify(availability));
+
+    // Sync deletion with API
+    fetch(`/api/menu/${id}`, { method: 'DELETE' })
+      .catch(err => console.log('API sync notice:', err));
+
     renderMenu();
     renderStats();
     window.dispatchEvent(new CustomEvent('menu:updated'));
@@ -287,6 +300,13 @@
     availability[item.id] = true;
     localStorage.setItem(menuDataKey, JSON.stringify(menuItems));
     localStorage.setItem(menuKey, JSON.stringify(availability));
+
+    // Sync with API
+    fetch('/api/menu', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(item)
+    }).catch(err => console.log('API sync notice:', err));
 
     form.reset();
     const uploadStatus = qs('#upload-file-status');

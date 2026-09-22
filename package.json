@@ -4,6 +4,11 @@
   "private": true,
   "description": "The Velvet Plate restaurant website",
   "scripts": {
-    "dev": "powershell -NoProfile -ExecutionPolicy Bypass -File .\\dev.ps1"
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.6",
+    "express": "^5.2.1"
   }
 }

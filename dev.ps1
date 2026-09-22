@@ -5,8 +5,8 @@ $listener = Get-NetTCPConnection -LocalPort $port -State Listen -ErrorAction Sil
 if (-not $listener) {
   Write-Host "Starting server on port $port..."
   $psi = New-Object System.Diagnostics.ProcessStartInfo
-  $psi.FileName = "python"
-  $psi.Arguments = "-m http.server $port"
+  $psi.FileName = "node"
+  $psi.Arguments = "server.js"
   $psi.WorkingDirectory = $PSScriptRoot
   $psi.WindowStyle = [System.Diagnostics.ProcessWindowStyle]::Minimized
   $psi.CreateNoWindow = $false

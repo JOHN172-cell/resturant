@@ -162,11 +162,20 @@
     if (!order) return;
     order.status = status;
     saveOrders();
+
+    fetch(`/api/orders/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status })
+    }).catch(err => console.log('API sync notice:', err));
   }
 
   function deleteOrder(id) {
     orders = orders.filter(item => item.id !== id);
     saveOrders();
+
+    fetch(`/api/orders/${id}`, { method: 'DELETE' })
+      .catch(err => console.log('API sync notice:', err));
   }
 
   // Date Header

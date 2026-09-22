@@ -233,9 +233,18 @@
       layer?.setAttribute('aria-hidden', 'true');
       document.body.classList.remove('locked');
       if (button.classList.contains('checkout-done')) {
+        const orderData = { id: `order-${Date.now()}`, createdAt: new Date().toISOString(), items: cart, status: 'new' };
         const orders = JSON.parse(localStorage.getItem('velvet-plate-orders') || '[]');
-        orders.push({ id: `order-${Date.now()}`, createdAt: new Date().toISOString(), items: cart, status: 'new' });
+        orders.push(orderData);
         localStorage.setItem('velvet-plate-orders', JSON.stringify(orders));
+        
+        // Post to backend API
+        fetch('/api/orders', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(orderData)
+        }).catch(err => console.log('Backend API sync notice:', err));
+
         cart = [];
         saveCart();
       }
@@ -244,6 +253,7 @@
 
   function showMessage(form, message, success = false) {
     const output = qs('.form-message', form);
+    if (!output) return;
     output.textContent = message;
     output.classList.toggle('success', success);
   }
@@ -254,9 +264,18 @@
       event.preventDefault();
       if (!reservationForm.checkValidity()) { showMessage(reservationForm, 'Please fill in each required field.'); reservationForm.reportValidity(); return; }
       const data = new FormData(reservationForm);
+      const resPayload = { id: `reservation-${Date.now()}`, name: data.get('name'), email: data.get('email'), phone: data.get('phone'), date: data.get('date'), time: data.get('time'), party: data.get('party'), seating: data.get('seating'), notes: data.get('notes'), status: 'pending' };
       const reservations = JSON.parse(localStorage.getItem('velvet-plate-reservations') || '[]');
-      reservations.push({ id: `reservation-${Date.now()}`, name: data.get('name'), email: data.get('email'), phone: data.get('phone'), date: data.get('date'), time: data.get('time'), party: data.get('party'), seating: data.get('seating'), notes: data.get('notes'), status: 'pending' });
+      reservations.push(resPayload);
       localStorage.setItem('velvet-plate-reservations', JSON.stringify(reservations));
+      
+      // Post to backend API
+      fetch('/api/reservations', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(resPayload)
+      }).catch(err => console.log('Backend API sync notice:', err));
+
       showMessage(reservationForm, `Thanks, ${data.get('name')}. Your table for ${data.get('party')} on ${data.get('date')} at ${data.get('time')} is requested. We’ll confirm by email shortly.`, true);
       reservationForm.reset();
     });

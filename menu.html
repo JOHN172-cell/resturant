@@ -1,18 +1,174 @@
 <!DOCTYPE html>
 <html lang="en">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="description" content="Order seasonal fire-led food from The Velvet Plate."><title>Menu & Ordering | The Velvet Plate</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet"><link rel="stylesheet" href="style.css"><script src="main.js" defer></script></head>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Interactive online menu for The Velvet Plate in Tema Community 11. Order fresh wood-fired dishes, starters, mains, desserts, and drinks.">
+  <title>Menu & Ordering | The Velvet Plate</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <script src="main.js" defer></script>
+</head>
 <body data-page="menu">
-  <div class="announcement">Walk in and bring your palette to life <span>•</span> Tema Community 11</div><header class="site-header"><a class="brand" href="index.html" aria-label="The Velvet Plate home"><span class="brand-mark">V<span>P</span></span><span class="brand-name">The Velvet<br><em>Plate</em></span></a><button class="menu-toggle" type="button" aria-label="Open navigation" aria-expanded="false"><span></span><span></span><span></span></button><nav class="site-nav" aria-label="Main navigation"><a href="index.html">Home</a><a class="active" href="menu.html">Menu</a><a href="reservation.html">Reservations</a><a href="contact.html">Contact</a></nav><button class="cart-trigger" type="button" aria-label="Open cart"><span class="cart-icon">↗</span><span>Order</span><b class="cart-count">0</b></button></header>
-  <main><section class="page-hero menu-page-hero"><div><p class="eyebrow">Good things, in a certain order</p><h1>The menu</h1></div><p class="page-hero-note">Made to be passed around.<br>Best enjoyed with the<br>people you came with.</p></section>
-    <section class="menu-section section-pad"><div class="menu-toolbar"><div class="filter-list" role="group" aria-label="Filter menu categories"><button class="filter-button active" data-filter="all">All</button><button class="filter-button" data-filter="starters">Starters</button><button class="filter-button" data-filter="mains">Mains</button><button class="filter-button" data-filter="desserts">Desserts</button><button class="filter-button" data-filter="drinks">Drinks</button></div><span class="menu-status">Click a dish to make it yours</span></div>
-      <div class="menu-grid">
-        <!-- Menu items are rendered dynamically from localStorage by main.js -->
+  <div class="announcement">Walk in and bring your palette to life <span>•</span> Tema Community 11</div>
+  <header class="site-header">
+    <a class="brand" href="index.html" aria-label="The Velvet Plate home"><span class="brand-mark">V<span>P</span></span><span class="brand-name">The Velvet<br><em>Plate</em></span></a>
+    <button class="menu-toggle" type="button" aria-label="Open navigation" aria-expanded="false"><span></span><span></span><span></span></button>
+    <nav class="site-nav" aria-label="Main navigation">
+      <a href="index.html">Home</a><a class="active" href="menu.html">Menu</a><a href="reservation.html">Reservations</a><a href="contact.html">Contact</a><a href="about.html">About</a>
+    </nav>
+    <button class="theme-toggle" type="button" aria-label="Toggle theme mode"><span class="theme-icon">☀️</span><span class="theme-text">Light</span></button>
+    <button class="cart-trigger" type="button" aria-label="Open cart"><span class="cart-icon">↗</span><span>Order</span><b class="cart-count">0</b></button>
+  </header>
+
+  <main class="menu-page-wrapper">
+    <!-- Sliding High-Quality Background Food Images -->
+    <div class="menu-slideshow" aria-hidden="true">
+      <div class="menu-bg-slide is-active" style="background-image: url('https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&fit=crop&w=2000&q=85');"></div>
+      <div class="menu-bg-slide" style="background-image: url('https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=2000&q=85');"></div>
+      <div class="menu-bg-slide" style="background-image: url('https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?auto=format&fit=crop&w=2000&q=85');"></div>
+      <div class="menu-bg-slide" style="background-image: url('https://images.unsplash.com/photo-1551024506-0bccd828d307?auto=format&fit=crop&w=2000&q=85');"></div>
+      <div class="menu-bg-slide" style="background-image: url('https://images.unsplash.com/photo-1544145945-f90425340c7e?auto=format&fit=crop&w=2000&q=85');"></div>
+      <div class="menu-overlay-gradient"></div>
+    </div>
+
+    <div class="menu-container">
+      <div class="menu-glass-overlay">
+        <!-- Hero Title -->
+        <div class="menu-header-center">
+          <p class="eyebrow-gold">Interactive Culinary Menu</p>
+          <h1>Crafted with Passion</h1>
+          <p class="menu-subtitle">Explore seasonal starters, wood-fired main courses, decadent desserts, and artisanal beverages.</p>
+        </div>
+
+        <!-- Search Bar & Dietary Filter Toolbar -->
+        <div class="menu-controls-bar">
+          <!-- Live Search Bar -->
+          <div class="menu-search-wrapper">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="menu-search-input" placeholder="Search dishes, ingredients, or flavors..." aria-label="Search menu items">
+          </div>
+
+          <!-- Category Navigation Tabs & Dietary Filters -->
+          <div class="menu-filter-row">
+            <div class="filter-group-category">
+              <button class="menu-cat-btn active" data-filter="all">All</button>
+              <button class="menu-cat-btn" data-filter="starters">Starters</button>
+              <button class="menu-cat-btn" data-filter="mains">Main Courses</button>
+              <button class="menu-cat-btn" data-filter="desserts">Desserts</button>
+              <button class="menu-cat-btn" data-filter="drinks">Drinks</button>
+            </div>
+            
+            <div class="filter-group-dietary">
+              <span class="diet-label">Dietary:</span>
+              <button class="diet-pill" data-diet="vegetarian">🥗 Vegetarian</button>
+              <button class="diet-pill" data-diet="vegan">🌱 Vegan</button>
+              <button class="diet-pill" data-diet="gluten-free">🌾 Gluten-Free</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Menu Content Grid (Rendered dynamically by main.js) -->
+        <div class="menu-grid" id="main-menu-grid">
+          <!-- Dynamic cards inserted here by main.js -->
+        </div>
+
+        <!-- Restaurant Details Footer Block -->
+        <div class="menu-footer-details">
+          <div class="menu-detail-card">
+            <span class="detail-icon">📍</span>
+            <div>
+              <strong>Location</strong>
+              <p>Tema Community 11</p>
+            </div>
+          </div>
+          <div class="menu-detail-card">
+            <span class="detail-icon">📞</span>
+            <div>
+              <strong>Phone</strong>
+              <p><a href="tel:+233503658302">+233 503658302</a></p>
+            </div>
+          </div>
+          <div class="menu-detail-card">
+            <span class="detail-icon">⏰</span>
+            <div>
+              <strong>Opening Hours</strong>
+              <p>9:00 AM – 10:00 PM</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <a class="brand" href="index.html"><span class="brand-mark">V<span>P</span></span><span class="brand-name">The Velvet<br><em>Plate</em></span></a>
+    <div><p>Tema Community 11</p><a href="mailto:hello@thevelvetplate.com">hello@thevelvetplate.com</a></div>
+    <div><p>Tue–Sun / 9am–10pm<br>Walk-ins always welcome</p><a href="contact.html">Find your way here →</a></div>
+    <small>© 2025 The Velvet Plate</small>
+  </footer>
+
+  <!-- Customization Modal & Cart Drawer -->
+  <aside class="cart-drawer" aria-label="Shopping cart" aria-hidden="true">
+    <div class="drawer-head"><h2>Your order</h2><button class="close-cart" type="button" aria-label="Close cart">×</button></div>
+    <div class="cart-items"></div>
+    <div class="cart-empty"><span>◎</span><p>Your order is<br>waiting to happen.</p><a href="menu.html">Browse the menu →</a></div>
+    <div class="cart-footer"><div><span>Subtotal</span><strong class="cart-total">₵0.00</strong></div><button class="button button-dark checkout-button" type="button" disabled>Checkout <span>↗</span></button></div>
+  </aside>
+  <div class="drawer-scrim"></div>
+
+  <div class="modal-layer" aria-hidden="true">
+    <section class="custom-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+      <button class="modal-close" type="button" aria-label="Close customization">×</button>
+      <div class="modal-image modal-image-1"></div>
+      <div class="modal-content">
+        <p class="eyebrow">Make it yours</p>
+        <h2 id="modal-title">Dish name</h2>
+        <p class="modal-description"></p>
+        <div class="custom-option">
+          <div class="option-heading"><span>01</span><strong>How are we serving it?</strong></div>
+          <label class="switch-row"><span>Make it vegan</span><input type="checkbox" id="vegan-choice"><i></i></label>
+        </div>
+        <div class="custom-option">
+          <div class="option-heading"><span>02</span><strong>Bring the heat</strong></div>
+          <div class="radio-row">
+            <label><input type="radio" name="spice" value="Mild" checked><span>Mild</span></label>
+            <label><input type="radio" name="spice" value="Medium"><span>Medium</span></label>
+            <label><input type="radio" name="spice" value="Hot"><span>Hot</span></label>
+            <label><input type="radio" name="spice" value="Extra hot"><span>Extra hot</span></label>
+          </div>
+        </div>
+        <div class="custom-option">
+          <div class="option-heading"><span>03</span><strong>Add a little extra</strong></div>
+          <div class="check-grid">
+            <label><input type="checkbox" value="Extra herbs"><span>Extra herbs <small>+₵1.00</small></span></label>
+            <label><input type="checkbox" value="Crispy shallots"><span>Crispy shallots <small>+₵2.00</small></span></label>
+            <label><input type="checkbox" value="House hot sauce"><span>House hot sauce <small>+₵1.00</small></span></label>
+            <label><input type="checkbox" value="Side of bread"><span>Side of bread <small>+₵3.00</small></span></label>
+          </div>
+        </div>
+        <label class="exclude-field" for="exclusions">
+          <span>Anything to leave out?</span>
+          <input id="exclusions" type="text" placeholder="e.g. no onions, no peanuts">
+        </label>
+        <button class="button button-dark modal-add" type="button">Add to order <span>+</span></button>
       </div>
     </section>
-  </main>
-  <footer class="site-footer"><a class="brand" href="index.html"><span class="brand-mark">V<span>P</span></span><span class="brand-name">The Velvet<br><em>Plate</em></span></a><div><p>Tema Community 11</p><a href="mailto:hello@thevelvetplate.com">hello@thevelvetplate.com</a></div><div><p>Tue–Sun / 5pm–late<br>Walk-ins always welcome</p><a href="contact.html">Find your way here →</a></div><small>© 2025 The Velvet Plate</small></footer>
-  <aside class="cart-drawer" aria-label="Shopping cart" aria-hidden="true"><div class="drawer-head"><h2>Your order</h2><button class="close-cart" type="button" aria-label="Close cart">×</button></div><div class="cart-items"></div><div class="cart-empty"><span>◎</span><p>Your order is<br>waiting to happen.</p><a href="menu.html">Browse the menu →</a></div><div class="cart-footer"><div><span>Subtotal</span><strong class="cart-total">$0.00</strong></div><button class="button button-dark checkout-button" type="button" disabled>Checkout <span>↗</span></button></div></aside><div class="drawer-scrim"></div>
-  <div class="modal-layer" aria-hidden="true"><section class="custom-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title"><button class="modal-close" type="button" aria-label="Close customization">×</button><div class="modal-image modal-image-1"></div><div class="modal-content"><p class="eyebrow">Make it yours</p><h2 id="modal-title">Dish name</h2><p class="modal-description"></p><div class="custom-option"><div class="option-heading"><span>01</span><strong>How are we serving it?</strong></div><label class="switch-row"><span>Make it vegan</span><input type="checkbox" id="vegan-choice"><i></i></label></div><div class="custom-option"><div class="option-heading"><span>02</span><strong>Bring the heat</strong></div><div class="radio-row"><label><input type="radio" name="spice" value="Mild" checked><span>Mild</span></label><label><input type="radio" name="spice" value="Medium"><span>Medium</span></label><label><input type="radio" name="spice" value="Hot"><span>Hot</span></label><label><input type="radio" name="spice" value="Extra hot"><span>Extra hot</span></label></div></div><div class="custom-option"><div class="option-heading"><span>03</span><strong>Add a little extra</strong></div><div class="check-grid"><label><input type="checkbox" value="Extra herbs"><span>Extra herbs <small>+$1</small></span></label><label><input type="checkbox" value="Crispy shallots"><span>Crispy shallots <small>+$2</small></span></label><label><input type="checkbox" value="House hot sauce"><span>House hot sauce <small>+$1</small></span></label><label><input type="checkbox" value="Side of bread"><span>Side of bread <small>+$3</small></span></label></div></div><label class="exclude-field" for="exclusions"><span>Anything to leave out?</span><input id="exclusions" type="text" placeholder="e.g. no onions, no peanuts"></label><button class="button button-dark modal-add" type="button">Add to order <span>+</span></button></div></section></div>
-  <div class="checkout-layer" aria-hidden="true"><section class="checkout-modal" role="dialog" aria-modal="true"><button class="modal-close checkout-close" type="button" aria-label="Close checkout">×</button><span class="success-symbol">✓</span><p class="eyebrow">Order received</p><h2>That’s dinner sorted.</h2><p>Your mock order is on its way to the kitchen. We’ll see you at The Velvet Plate.</p><button class="button button-dark checkout-done" type="button">Back to the menu <span>↗</span></button></section></div>
+  </div>
+
+  <div class="checkout-layer" aria-hidden="true">
+    <section class="checkout-modal" role="dialog" aria-modal="true">
+      <button class="modal-close checkout-close" type="button" aria-label="Close checkout">×</button>
+      <span class="success-symbol">✓</span>
+      <p class="eyebrow">Order received</p>
+      <h2>That’s dinner sorted.</h2>
+      <p>Your order is on its way to the kitchen. We’ll see you at The Velvet Plate.</p>
+      <button class="button button-dark checkout-done" type="button">Back to the menu <span>↗</span></button>
+    </section>
+  </div>
 </body>
 </html>

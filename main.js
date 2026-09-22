@@ -81,8 +81,22 @@
   }
 
   function loadMenuItems() {
-    const stored = JSON.parse(localStorage.getItem('velvet-plate-menu-data') || 'null');
-    if (!Array.isArray(stored) || !stored.length) return [];
+    const raw = localStorage.getItem('velvet-plate-menu-data');
+    // Seed defaults on genuine first visit only (key completely absent)
+    if (raw === null) {
+      const defaults = [
+        { id: 'carrots', name: 'Charred carrots', category: 'Starter', cuisine: 'Continental', price: 12, description: 'whipped feta, sumac, pistachio', image: 'https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?auto=format&fit=crop&w=400&q=80' },
+        { id: 'oysters', name: 'Ember oysters', category: 'Starter', cuisine: 'Continental', price: 18, description: 'cider mignonette, smoked chili', image: 'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=400&q=80' },
+        { id: 'chicken', name: 'Coal-roasted chicken', category: 'Main', cuisine: 'Continental', price: 28, description: 'preserved lemon, chicken jus', image: 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&fit=crop&w=400&q=80' },
+        { id: 'steak', name: 'Hanger steak', category: 'Main', cuisine: 'Continental', price: 34, description: 'green peppercorn, crispy potato', image: 'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=400&q=80' },
+        { id: 'panna', name: 'Burnt honey panna cotta', category: 'Dessert', cuisine: 'Continental', price: 11, description: 'rhubarb, oat crumble', image: 'https://images.unsplash.com/photo-1551024506-0bccd828d307?auto=format&fit=crop&w=400&q=80' },
+        { id: 'spritz', name: 'Salted grapefruit spritz', category: 'Drink', cuisine: 'Local drinks', price: 14, description: 'grapefruit, fino sherry, bubbles', image: 'https://images.unsplash.com/photo-1544145945-f90425340c7e?auto=format&fit=crop&w=400&q=80' }
+      ];
+      localStorage.setItem('velvet-plate-menu-data', JSON.stringify(defaults));
+      return defaults;
+    }
+    const stored = JSON.parse(raw);
+    if (!Array.isArray(stored)) return [];
     return stored.map(item => ({
       id: String(item.id || 'dish'),
       name: String(item.name || 'Untitled dish'),
@@ -93,6 +107,7 @@
       image: String(item.image || (Array.isArray(item.images) ? item.images[0] : '') || '')
     }));
   }
+
 
   function renderDynamicMenu() {
     const menuGrid = qs('.menu-grid');

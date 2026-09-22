@@ -38,8 +38,15 @@
   let menuSearch = '';
 
   function loadMenuItems() {
-    const stored = JSON.parse(localStorage.getItem(menuDataKey) || 'null');
-    if (!Array.isArray(stored) || !stored.length) {
+    const raw = localStorage.getItem(menuDataKey);
+    // Key missing = genuine first visit: seed with defaults
+    if (raw === null) {
+      localStorage.setItem(menuDataKey, JSON.stringify(defaultMenuItems));
+      return [...defaultMenuItems];
+    }
+    // Key exists but is empty array = admin deliberately deleted everything
+    const stored = JSON.parse(raw);
+    if (!Array.isArray(stored)) {
       localStorage.setItem(menuDataKey, JSON.stringify(defaultMenuItems));
       return [...defaultMenuItems];
     }

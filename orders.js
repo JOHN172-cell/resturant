@@ -110,9 +110,12 @@
 
         const prefsHtml = (order.items || [])
           .map(item => {
+            if (item.customSummary) {
+              return `• <em>${item.name}</em>: ${item.customSummary}`;
+            }
             const extrasText = item.extras && item.extras.length ? ` / + ${item.extras.join(', ')}` : '';
             const exclusionsText = item.exclusions ? ` / No: ${item.exclusions}` : '';
-            return `${item.vegan ? 'Vegan' : 'Standard'} / ${item.spice || 'Mild'}${extrasText}${exclusionsText}`;
+            return `• <em>${item.name}</em>: ${item.vegan ? 'Vegan' : 'Standard'} / ${item.spice || 'Mild'}${extrasText}${exclusionsText}`;
           })
           .join('<br>');
 

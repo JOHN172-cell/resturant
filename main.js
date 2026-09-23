@@ -236,24 +236,305 @@
     }
   }
 
+  // --- Dynamic Food-Type Customization Engine ---
+  function detectFoodType(dish) {
+    const category = String(dish.category || '').toLowerCase();
+    const cuisine = String(dish.cuisine || '').toLowerCase();
+    const name = String(dish.name || '').toLowerCase();
+
+    if (category.includes('drink') || category.includes('beverage') || cuisine.includes('drink') || cuisine.includes('cocktail') || name.includes('spritz') || name.includes('elixir') || name.includes('wine') || name.includes('juice') || name.includes('beverage')) {
+      return 'drink';
+    }
+    if (category.includes('dessert') || category.includes('sweet') || cuisine.includes('patisserie') || name.includes('panna cotta') || name.includes('cake') || name.includes('ice cream') || name.includes('tart') || name.includes('chocolate') || name.includes('sweet')) {
+      return 'dessert';
+    }
+    if (name.includes('steak') || name.includes('chicken') || name.includes('lamb') || name.includes('chops') || name.includes('beef') || cuisine.includes('steakhouse') || cuisine.includes('wood-fired')) {
+      return 'steak';
+    }
+    if (name.includes('pizza') || name.includes('pasta') || name.includes('margherita') || name.includes('tagliatelle') || name.includes('spaghetti') || cuisine.includes('italian') || cuisine.includes('pasta')) {
+      return 'pizza';
+    }
+    if (category.includes('starter') || category.includes('appetizer') || category.includes('salad') || name.includes('carrots') || name.includes('oysters') || name.includes('bruschetta')) {
+      return 'starter';
+    }
+    return 'general';
+  }
+
+  function getFoodTypeSchema(foodType) {
+    switch (foodType) {
+      case 'drink':
+        return {
+          badgeTitle: 'Craft Beverage Order',
+          badgeIcon: '🍹',
+          themeClass: 'modal-type-drink',
+          buttonText: 'Add Beverage to Order',
+          primary: {
+            name: 'ice',
+            heading: 'Ice Preference',
+            options: ['Regular Ice', 'Light Ice', 'Extra Ice', 'No Ice'],
+            defaultVal: 'Regular Ice'
+          },
+          secondary: {
+            name: 'sweetness',
+            heading: 'Sweetness & Flavor',
+            options: ['Standard Sweetness', '50% Less Sweet', 'Extra Sweet', 'Unsweetened'],
+            defaultVal: 'Standard Sweetness'
+          },
+          extras: [
+            { label: 'Fresh Lime Wheel', cost: 1.00 },
+            { label: 'Sparkling Soda Splash', cost: 1.00 },
+            { label: 'Fresh Mint Sprig', cost: 1.00 },
+            { label: 'Double Shot / Premium', cost: 5.00 }
+          ],
+          noteLabel: 'Special instructions for the bartender'
+        };
+
+      case 'dessert':
+        return {
+          badgeTitle: 'Sweet Treat Order',
+          badgeIcon: '🍰',
+          themeClass: 'modal-type-dessert',
+          buttonText: 'Add Sweet Treat to Order',
+          primary: {
+            name: 'temp',
+            heading: 'Serving Temperature',
+            options: ['Chilled', 'Room Temp', 'Warm & Heated'],
+            defaultVal: 'Chilled'
+          },
+          secondary: {
+            name: 'dairy',
+            heading: 'Milk & Cream Choice',
+            options: ['Traditional Dairy', 'Oat Milk / Dairy-Free (+₵2.00)'],
+            defaultVal: 'Traditional Dairy'
+          },
+          extras: [
+            { label: 'Vanilla Bean Ice Cream Scoop', cost: 4.00 },
+            { label: 'Valrhona Dark Drizzle', cost: 2.50 },
+            { label: 'Crushed Pistachio Crumble', cost: 2.00 },
+            { label: 'Fresh Berry Reduction', cost: 3.00 }
+          ],
+          noteLabel: 'Special requests for our pastry chef'
+        };
+
+      case 'steak':
+        return {
+          badgeTitle: 'Wood-Fired Grill Order',
+          badgeIcon: '🥩',
+          themeClass: 'modal-type-steak',
+          buttonText: 'Add Grill Special to Order',
+          primary: {
+            name: 'doneness',
+            heading: 'Meat Cooking Temperature',
+            options: ['Medium Rare', 'Rare', 'Medium', 'Medium Well', 'Well Done'],
+            defaultVal: 'Medium Rare'
+          },
+          secondary: {
+            name: 'sauce',
+            heading: 'Signature Sauce',
+            options: ['Peppercorn Jus', 'Smoked Chili Butter', 'Garlic Herb Butter', 'Chimichurri'],
+            defaultVal: 'Peppercorn Jus'
+          },
+          extras: [
+            { label: 'Triple-Cooked Garlic Potatoes', cost: 4.00 },
+            { label: 'Ember Roasted Asparagus', cost: 5.00 },
+            { label: 'Black Truffle Butter', cost: 3.00 },
+            { label: 'Extra Peppercorn Jus', cost: 2.00 }
+          ],
+          noteLabel: 'Special preparation or sear requests'
+        };
+
+      case 'pizza':
+        return {
+          badgeTitle: 'Artisan Kitchen Order',
+          badgeIcon: '🍕',
+          themeClass: 'modal-type-pizza',
+          buttonText: 'Add Artisan Dish to Order',
+          primary: {
+            name: 'crust',
+            heading: 'Crust / Base Preference',
+            options: ['Traditional Neapolitan', 'Thin & Crispy', 'Gluten-Free Base (+₵4.00)'],
+            defaultVal: 'Traditional Neapolitan'
+          },
+          secondary: {
+            name: 'spice',
+            heading: 'Sauce & Spice Intensity',
+            options: ['Mild Marinara', 'Garlic & Herb', 'Spicy Chili Oil'],
+            defaultVal: 'Mild Marinara'
+          },
+          extras: [
+            { label: 'Extra Fior di Latte Cheese', cost: 4.00 },
+            { label: 'Black Truffle Oil Drizzle', cost: 3.00 },
+            { label: 'Fresh Basil & Olive Oil', cost: 1.50 },
+            { label: 'Aged Parmesan Shavings', cost: 2.50 }
+          ],
+          noteLabel: 'Special crust or topping requests'
+        };
+
+      case 'starter':
+      default:
+        return {
+          badgeTitle: 'Starter & Shareable Order',
+          badgeIcon: '🥗',
+          themeClass: 'modal-type-starter',
+          buttonText: 'Add Starter to Order',
+          primary: {
+            name: 'dressing',
+            heading: 'Serving & Dressing Style',
+            options: ['Chef House Vinaigrette', 'Creamy Feta & Sumac', 'Sumac Olive Oil', 'Dressing on Side'],
+            defaultVal: 'Chef House Vinaigrette'
+          },
+          secondary: {
+            name: 'prep',
+            heading: 'Dietary Preparation',
+            options: ['Standard Chef Prep', 'Make it Vegan 🌱', 'Gluten-Free Prep'],
+            defaultVal: 'Standard Chef Prep'
+          },
+          extras: [
+            { label: 'Warm Artisan Sourdough', cost: 3.00 },
+            { label: 'Roasted Pistachios', cost: 2.00 },
+            { label: 'Extra Whipped Feta', cost: 3.50 }
+          ],
+          noteLabel: 'Dietary exclusions or kitchen notes'
+        };
+    }
+  }
+
   function setupCustomization() {
     qsa('.add-button').forEach(button => {
       if (button.dataset.bound) return;
       button.dataset.bound = 'true';
       button.addEventListener('click', () => {
         const card = button.closest('.menu-card');
-        selectedDish = { id: card.dataset.id, name: card.dataset.name, price: Number(card.dataset.price), description: card.dataset.description };
-        qs('#modal-title').textContent = selectedDish.name;
-        qs('.modal-description').textContent = selectedDish.description;
+        const dishId = card.dataset.id;
+        const allItems = loadMenuItems();
+        const found = allItems.find(i => String(i.id) === String(dishId));
+        
+        selectedDish = found || {
+          id: card.dataset.id,
+          name: card.dataset.name,
+          price: Number(card.dataset.price),
+          description: card.dataset.description,
+          category: card.dataset.category || '',
+          cuisine: card.dataset.cuisine || card.querySelector('.card-category')?.textContent || ''
+        };
+
+        renderCustomizationModal(selectedDish);
+
         const modal = qs('.modal-layer');
-        modal.classList.add('open');
-        modal.setAttribute('aria-hidden', 'false');
+        modal?.classList.add('open');
+        modal?.setAttribute('aria-hidden', 'false');
         document.body.classList.add('locked');
       });
     });
+
     qsa('.modal-close').forEach(button => button.addEventListener('click', closeModal));
     qs('.modal-layer')?.addEventListener('click', event => { if (event.target.classList.contains('modal-layer')) closeModal(); });
+    qs('.modal-add')?.removeEventListener('click', addCustomizedItem);
     qs('.modal-add')?.addEventListener('click', addCustomizedItem);
+  }
+
+  function renderCustomizationModal(dish) {
+    const foodType = detectFoodType(dish);
+    const schema = getFoodTypeSchema(foodType);
+    selectedDish.foodType = foodType;
+    selectedDish.schema = schema;
+
+    const modalSection = qs('.custom-modal');
+    if (modalSection) {
+      modalSection.className = `custom-modal ${schema.themeClass}`;
+    }
+
+    const badgeEl = qs('#modal-type-badge');
+    if (badgeEl) {
+      badgeEl.querySelector('.badge-icon').textContent = schema.badgeIcon;
+      badgeEl.querySelector('.badge-text').textContent = schema.badgeTitle;
+    }
+
+    const titleEl = qs('#modal-title');
+    if (titleEl) titleEl.textContent = dish.name;
+
+    const descEl = qs('.modal-description');
+    if (descEl) descEl.textContent = dish.description || 'Freshly prepared wood-fired culinary dish';
+
+    const addBtn = qs('.modal-add');
+    if (addBtn) addBtn.innerHTML = `${schema.buttonText} <span>+</span>`;
+
+    const optionsContainer = qs('#dynamic-modal-options');
+    if (!optionsContainer) return;
+
+    let html = '';
+
+    // Primary Radio Option Group
+    if (schema.primary) {
+      html += `
+        <div class="custom-option-section">
+          <div class="option-heading-styled">
+            <span class="opt-num">01</span>
+            <strong>${schema.primary.heading}</strong>
+          </div>
+          <div class="custom-pill-group">
+            ${schema.primary.options.map((opt, i) => `
+              <label class="custom-pill-label">
+                <input type="radio" name="modal-primary-opt" value="${opt}" ${i === 0 ? 'checked' : ''}>
+                <span class="pill-btn">${opt}</span>
+              </label>
+            `).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    // Secondary Radio Option Group
+    if (schema.secondary) {
+      html += `
+        <div class="custom-option-section">
+          <div class="option-heading-styled">
+            <span class="opt-num">02</span>
+            <strong>${schema.secondary.heading}</strong>
+          </div>
+          <div class="custom-pill-group">
+            ${schema.secondary.options.map((opt, i) => `
+              <label class="custom-pill-label">
+                <input type="radio" name="modal-secondary-opt" value="${opt}" ${i === 0 ? 'checked' : ''}>
+                <span class="pill-btn">${opt}</span>
+              </label>
+            `).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    // Extras Checkbox Group
+    if (schema.extras && schema.extras.length) {
+      html += `
+        <div class="custom-option-section">
+          <div class="option-heading-styled">
+            <span class="opt-num">03</span>
+            <strong>Add Gourmet Extras</strong>
+          </div>
+          <div class="custom-pill-group">
+            ${schema.extras.map(extra => `
+              <label class="custom-pill-label">
+                <input type="checkbox" name="modal-extra-opt" value="${extra.label}" data-cost="${extra.cost}">
+                <span class="pill-btn">
+                  ${extra.label} <span class="pill-cost">+₵${extra.cost.toFixed(2)}</span>
+                </span>
+              </label>
+            `).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    // Note Input Field
+    html += `
+      <label class="custom-note-field">
+        <span>${schema.noteLabel || 'Special instructions'}</span>
+        <input type="text" id="modal-note-input" placeholder="e.g. sauce on side, allergies, extra crisp...">
+      </label>
+    `;
+
+    optionsContainer.innerHTML = html;
   }
 
   function closeModal() {
@@ -265,23 +546,64 @@
 
   function addCustomizedItem() {
     if (!selectedDish) return;
-    const extras = qsa('.check-grid input:checked').map(input => input.value);
-    const extraCost = extras.reduce((sum, extra) => sum + (extra === 'Crispy shallots' ? 2 : extra === 'Side of bread' ? 3 : 1), 0);
-    const item = { ...selectedDish, vegan: qs('#vegan-choice').checked, spice: qs('input[name="spice"]:checked').value, extras, exclusions: qs('#exclusions').value.trim(), price: selectedDish.price + extraCost, quantity: 1 };
-    const match = cart.find(entry => entry.id === item.id && entry.vegan === item.vegan && entry.spice === item.spice && entry.exclusions === item.exclusions && JSON.stringify(entry.extras) === JSON.stringify(item.extras));
-    if (match) match.quantity += 1; else cart.push(item);
+    const schema = selectedDish.schema || getFoodTypeSchema(detectFoodType(selectedDish));
+
+    const primaryChoice = qs('input[name="modal-primary-opt"]:checked')?.value || '';
+    const secondaryChoice = qs('input[name="modal-secondary-opt"]:checked')?.value || '';
+
+    const checkedExtras = qsa('input[name="modal-extra-opt"]:checked');
+    const extraLabels = [];
+    let extraCost = 0;
+
+    // Check for price additions in radios (e.g. +₵4.00, +₵2.00)
+    [primaryChoice, secondaryChoice].forEach(choice => {
+      const match = choice.match(/\+₵(\d+(\.\d+)?)/);
+      if (match) extraCost += Number(match[1]);
+    });
+
+    checkedExtras.forEach(input => {
+      extraLabels.push(input.value);
+      extraCost += Number(input.dataset.cost || 0);
+    });
+
+    const notes = qs('#modal-note-input')?.value.trim() || '';
+
+    // Construct clean summary string for ticket & cart
+    const parts = [];
+    if (primaryChoice) parts.push(primaryChoice);
+    if (secondaryChoice) parts.push(secondaryChoice);
+    if (extraLabels.length) parts.push(`+ ${extraLabels.join(', ')}`);
+    if (notes) parts.push(`Note: ${notes}`);
+
+    const customSummary = parts.join(' · ');
+
+    const item = {
+      ...selectedDish,
+      foodType: selectedDish.foodType || detectFoodType(selectedDish),
+      primaryChoice,
+      secondaryChoice,
+      extras: extraLabels,
+      notes,
+      customSummary,
+      price: selectedDish.price + extraCost,
+      quantity: 1
+    };
+
+    const match = cart.find(entry => 
+      entry.id === item.id && 
+      entry.customSummary === item.customSummary &&
+      entry.price === item.price
+    );
+
+    if (match) {
+      match.quantity += 1;
+    } else {
+      cart.push(item);
+    }
+
     saveCart();
     closeModal();
     openCart();
-    resetCustomization();
-  }
-
-  function resetCustomization() {
-    qs('#vegan-choice') && (qs('#vegan-choice').checked = false);
-    qsa('.check-grid input').forEach(input => { input.checked = false; });
-    qs('#exclusions') && (qs('#exclusions').value = '');
-    const mild = qs('input[name="spice"][value="Mild"]');
-    if (mild) mild.checked = true;
   }
 
   function renderCart() {
@@ -294,7 +616,32 @@
     const empty = qs('.cart-empty');
     if (!items || !empty) return;
     empty.style.display = cart.length ? 'none' : 'block';
-    items.innerHTML = cart.map((item, index) => `<article class="cart-line"><div><h3>${item.name}</h3><p>${item.vegan ? 'Vegan' : 'Standard'} / ${item.spice}<br>${item.extras.length ? `+ ${item.extras.join(', ')}<br>` : ''}${item.exclusions ? `No: ${item.exclusions}` : ''}</p></div><strong>${money(item.price * item.quantity)}</strong><div class="cart-controls"><button type="button" data-action="decrease" data-index="${index}" aria-label="Decrease quantity">−</button><span>${item.quantity}</span><button type="button" data-action="increase" data-index="${index}" aria-label="Increase quantity">+</button><button class="remove-item" type="button" data-action="remove" data-index="${index}" aria-label="Remove item">×</button></div></article>`).join('');
+
+    items.innerHTML = cart.map((item, index) => {
+      const summaryText = item.customSummary || [
+        item.vegan ? 'Vegan' : null,
+        item.spice,
+        item.extras && item.extras.length ? `+ ${item.extras.join(', ')}` : null,
+        item.exclusions ? `No: ${item.exclusions}` : null
+      ].filter(Boolean).join(' · ') || 'Standard Prep';
+
+      return `
+        <article class="cart-line">
+          <div>
+            <h3>${item.name}</h3>
+            <p>${summaryText}</p>
+          </div>
+          <strong>${money(item.price * item.quantity)}</strong>
+          <div class="cart-controls">
+            <button type="button" data-action="decrease" data-index="${index}" aria-label="Decrease quantity">−</button>
+            <span>${item.quantity}</span>
+            <button type="button" data-action="increase" data-index="${index}" aria-label="Increase quantity">+</button>
+            <button class="remove-item" type="button" data-action="remove" data-index="${index}" aria-label="Remove item">×</button>
+          </div>
+        </article>
+      `;
+    }).join('');
+
     qsa('[data-action]', items).forEach(button => button.addEventListener('click', () => updateQuantity(Number(button.dataset.index), button.dataset.action)));
   }
 

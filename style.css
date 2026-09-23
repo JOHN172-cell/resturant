@@ -1619,3 +1619,270 @@
   .about-glass-overlay { padding: 30px 20px; }
 }
 
+/* ==========================================
+   DYNAMIC FOOD-TYPE ORDER FORM STYLES
+   ========================================== */
+.modal-layer {
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.custom-modal {
+  border-radius: 20px;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.45);
+  border: 1px solid var(--line);
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.modal-type-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  font: 700 10px var(--mono);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 14px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+.modal-type-badge .badge-icon {
+  font-size: 14px;
+}
+
+/* Theme 1: Drinks & Beverages */
+.modal-type-drink .modal-type-badge {
+  background: rgba(15, 76, 58, 0.12);
+  color: #0d6e53;
+  border: 1px solid rgba(15, 76, 58, 0.3);
+}
+[data-theme="dark"] .modal-type-drink .modal-type-badge {
+  background: rgba(45, 180, 140, 0.18);
+  color: #5ce6be;
+  border-color: rgba(92, 230, 190, 0.4);
+}
+.modal-type-drink .modal-content {
+  background: linear-gradient(180deg, rgba(15, 76, 58, 0.04) 0%, transparent 220px);
+}
+
+/* Theme 2: Desserts & Sweets */
+.modal-type-dessert .modal-type-badge {
+  background: rgba(148, 52, 90, 0.12);
+  color: #94345a;
+  border: 1px solid rgba(148, 52, 90, 0.3);
+}
+[data-theme="dark"] .modal-type-dessert .modal-type-badge {
+  background: rgba(230, 110, 160, 0.18);
+  color: #f7a3c8;
+  border-color: rgba(247, 163, 200, 0.4);
+}
+.modal-type-dessert .modal-content {
+  background: linear-gradient(180deg, rgba(148, 52, 90, 0.04) 0%, transparent 220px);
+}
+
+/* Theme 3: Steaks & Wood-Fired Meats */
+.modal-type-steak .modal-type-badge {
+  background: rgba(216, 77, 53, 0.12);
+  color: #d84d35;
+  border: 1px solid rgba(216, 77, 53, 0.3);
+}
+[data-theme="dark"] .modal-type-steak .modal-type-badge {
+  background: rgba(255, 105, 80, 0.2);
+  color: #ff9178;
+  border-color: rgba(255, 145, 120, 0.4);
+}
+.modal-type-steak .modal-content {
+  background: linear-gradient(180deg, rgba(216, 77, 53, 0.05) 0%, transparent 220px);
+}
+
+/* Theme 4: Artisan Pizza & Pasta */
+.modal-type-pizza .modal-type-badge {
+  background: rgba(184, 107, 39, 0.12);
+  color: #b86b27;
+  border: 1px solid rgba(184, 107, 39, 0.3);
+}
+[data-theme="dark"] .modal-type-pizza .modal-type-badge {
+  background: rgba(230, 150, 70, 0.18);
+  color: #fca85d;
+  border-color: rgba(252, 168, 93, 0.4);
+}
+.modal-type-pizza .modal-content {
+  background: linear-gradient(180deg, rgba(184, 107, 39, 0.05) 0%, transparent 220px);
+}
+
+/* Theme 5: Starters & Salads */
+.modal-type-starter .modal-type-badge {
+  background: rgba(110, 138, 70, 0.14);
+  color: #557530;
+  border: 1px solid rgba(110, 138, 70, 0.3);
+}
+[data-theme="dark"] .modal-type-starter .modal-type-badge {
+  background: rgba(140, 185, 90, 0.2);
+  color: #b1e075;
+  border-color: rgba(177, 224, 117, 0.4);
+}
+.modal-type-starter .modal-content {
+  background: linear-gradient(180deg, rgba(110, 138, 70, 0.05) 0%, transparent 220px);
+}
+
+/* Option Sections & Pills */
+.custom-option-section {
+  border-top: 1px solid var(--line);
+  padding: 20px 0 16px;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.option-heading-styled {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 13px;
+  margin-bottom: 14px;
+}
+
+.option-heading-styled span.opt-num {
+  display: inline-grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--ink);
+  color: var(--paper);
+  font: 700 10px var(--mono);
+}
+
+[data-theme="dark"] .option-heading-styled span.opt-num {
+  background: var(--mustard);
+  color: var(--ink);
+}
+
+.option-heading-styled strong {
+  font-family: var(--sans);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.custom-pill-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.custom-pill-label {
+  position: relative;
+  cursor: pointer;
+  user-select: none;
+}
+
+.custom-pill-label input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.custom-pill-label span.pill-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  font: 500 11px var(--mono);
+  color: var(--ink);
+  background: rgba(255, 255, 255, 0.6);
+  transition: all 0.18s ease;
+}
+
+[data-theme="dark"] .custom-pill-label span.pill-btn {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--paper);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.custom-pill-label:hover span.pill-btn {
+  border-color: var(--tomato);
+  transform: translateY(-1px);
+}
+
+.custom-pill-label input:checked + span.pill-btn {
+  background: var(--ink);
+  color: var(--paper);
+  border-color: var(--ink);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+[data-theme="dark"] .custom-pill-label input:checked + span.pill-btn {
+  background: var(--tomato);
+  color: #ffffff;
+  border-color: var(--tomato);
+}
+
+.pill-cost {
+  color: var(--tomato);
+  font-size: 10px;
+  font-weight: 600;
+  margin-left: 2px;
+}
+
+[data-theme="dark"] .pill-cost {
+  color: var(--mustard);
+}
+
+.custom-pill-label input:checked + span.pill-btn .pill-cost {
+  color: var(--mustard);
+}
+
+.custom-note-field {
+  display: block;
+  border-top: 1px solid var(--line);
+  padding: 18px 0 22px;
+}
+
+.custom-note-field span {
+  display: block;
+  font: 600 10px var(--mono);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 8px;
+  color: var(--ink);
+  opacity: 0.85;
+}
+
+.custom-note-field input {
+  width: 100%;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  background: transparent;
+  padding: 8px 0;
+  font: 12px var(--mono);
+  color: var(--ink);
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.custom-note-field input:focus {
+  border-color: var(--tomato);
+}
+
+.modal-add {
+  font-weight: 700;
+  min-height: 48px;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  transition: transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+}
+
+.modal-add:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.2);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+

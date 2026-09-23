@@ -126,35 +126,19 @@
       <button class="modal-close" type="button" aria-label="Close customization">×</button>
       <div class="modal-image modal-image-1"></div>
       <div class="modal-content">
-        <p class="eyebrow">Make it yours</p>
+        <div class="modal-type-badge" id="modal-type-badge">
+          <span class="badge-icon">🍽️</span>
+          <span class="badge-text">Kitchen Customizer</span>
+        </div>
+        <p class="eyebrow">Crafted for your taste</p>
         <h2 id="modal-title">Dish name</h2>
         <p class="modal-description"></p>
-        <div class="custom-option">
-          <div class="option-heading"><span>01</span><strong>How are we serving it?</strong></div>
-          <label class="switch-row"><span>Make it vegan</span><input type="checkbox" id="vegan-choice"><i></i></label>
+        
+        <!-- Dynamic Food-Type Specific Options Container -->
+        <div id="dynamic-modal-options" class="modal-dynamic-options">
+          <!-- Dynamically populated based on food type by main.js -->
         </div>
-        <div class="custom-option">
-          <div class="option-heading"><span>02</span><strong>Bring the heat</strong></div>
-          <div class="radio-row">
-            <label><input type="radio" name="spice" value="Mild" checked><span>Mild</span></label>
-            <label><input type="radio" name="spice" value="Medium"><span>Medium</span></label>
-            <label><input type="radio" name="spice" value="Hot"><span>Hot</span></label>
-            <label><input type="radio" name="spice" value="Extra hot"><span>Extra hot</span></label>
-          </div>
-        </div>
-        <div class="custom-option">
-          <div class="option-heading"><span>03</span><strong>Add a little extra</strong></div>
-          <div class="check-grid">
-            <label><input type="checkbox" value="Extra herbs"><span>Extra herbs <small>+₵1.00</small></span></label>
-            <label><input type="checkbox" value="Crispy shallots"><span>Crispy shallots <small>+₵2.00</small></span></label>
-            <label><input type="checkbox" value="House hot sauce"><span>House hot sauce <small>+₵1.00</small></span></label>
-            <label><input type="checkbox" value="Side of bread"><span>Side of bread <small>+₵3.00</small></span></label>
-          </div>
-        </div>
-        <label class="exclude-field" for="exclusions">
-          <span>Anything to leave out?</span>
-          <input id="exclusions" type="text" placeholder="e.g. no onions, no peanuts">
-        </label>
+
         <button class="button button-dark modal-add" type="button">Add to order <span>+</span></button>
       </div>
     </section>

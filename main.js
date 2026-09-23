@@ -399,38 +399,126 @@
     }
   }
 
+  function ensureModalDOM() {
+    if (qs('.modal-layer')) return;
+    const modalHtml = `
+      <div class="modal-layer" aria-hidden="true">
+        <section class="custom-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+          <button class="modal-close" type="button" aria-label="Close customization">×</button>
+          <div class="modal-image modal-image-1"></div>
+          <div class="modal-content">
+            <div class="modal-type-badge" id="modal-type-badge">
+              <span class="badge-icon">🍽️</span>
+              <span class="badge-text">Kitchen Customizer</span>
+            </div>
+            <p class="eyebrow">Crafted for your taste</p>
+            <h2 id="modal-title">Dish name</h2>
+            <p class="modal-description"></p>
+            <div id="dynamic-modal-options" class="modal-dynamic-options"></div>
+            <button class="button button-dark modal-add" type="button">Add to order <span>+</span></button>
+          </div>
+        </section>
+      </div>
+      <div class="checkout-layer" aria-hidden="true">
+        <section class="checkout-modal" role="dialog" aria-modal="true">
+          <button class="modal-close checkout-close" type="button" aria-label="Close checkout">×</button>
+          <span class="success-symbol">✓</span>
+          <p class="eyebrow">Order received</p>
+          <h2>That’s dinner sorted.</h2>
+          <p>Your order is on its way to the kitchen. We’ll see you at The Velvet Plate.</p>
+          <button class="button button-dark checkout-done" type="button">Back to the menu <span>↗</span></button>
+        </section>
+      </div>
+    `;
+    document.body.insertAdjacentHTML('beforeend', modalHtml);
+    setupCheckout();
+  }
+
+  function openDishModal(dish) {
+    if (!dish) return;
+    ensureModalDOM();
+    selectedDish = dish;
+    renderCustomizationModal(selectedDish);
+
+    const modal = qs('.modal-layer');
+    if (modal) {
+      modal.classList.add('open');
+      modal.setAttribute('aria-hidden', 'false');
+      document.body.classList.add('locked');
+    }
+  }
+
   function setupCustomization() {
-    qsa('.add-button').forEach(button => {
-      if (button.dataset.bound) return;
-      button.dataset.bound = 'true';
-      button.addEventListener('click', () => {
-        const card = button.closest('.menu-card');
+    ensureModalDOM();
+    const allItems = loadMenuItems();
+
+    // 1. Menu Page Cards (.menu-card)
+    qsa('.menu-card').forEach(card => {
+      if (card.dataset.bound) return;
+      card.dataset.bound = 'true';
+      card.style.cursor = 'pointer';
+
+      card.addEventListener('click', event => {
         const dishId = card.dataset.id;
-        const allItems = loadMenuItems();
         const found = allItems.find(i => String(i.id) === String(dishId));
-        
-        selectedDish = found || {
-          id: card.dataset.id,
-          name: card.dataset.name,
-          price: Number(card.dataset.price),
-          description: card.dataset.description,
+        const bgImg = card.querySelector('.menu-image')?.style.backgroundImage;
+        let imgUrl = '';
+        if (bgImg && bgImg.includes('url')) {
+          imgUrl = bgImg.slice(5, -2).replace(/['"]/g, '');
+        }
+
+        const dish = found || {
+          id: card.dataset.id || `dish-${Date.now()}`,
+          name: card.dataset.name || card.querySelector('h2')?.textContent || 'Menu Item',
+          price: Number(card.dataset.price) || 20,
+          description: card.dataset.description || card.querySelector('p')?.textContent || '',
           category: card.dataset.category || '',
-          cuisine: card.dataset.cuisine || card.querySelector('.card-category')?.textContent || ''
+          cuisine: card.dataset.cuisine || card.querySelector('.card-category')?.textContent || '',
+          image: imgUrl
         };
+        openDishModal(dish);
+      });
+    });
 
-        renderCustomizationModal(selectedDish);
+    // 2. Home Page / Featured Cards (.dish-card)
+    qsa('.dish-card').forEach(card => {
+      if (card.dataset.bound) return;
+      card.dataset.bound = 'true';
+      card.style.cursor = 'pointer';
 
-        const modal = qs('.modal-layer');
-        modal?.classList.add('open');
-        modal?.setAttribute('aria-hidden', 'false');
-        document.body.classList.add('locked');
+      card.addEventListener('click', () => {
+        const title = card.querySelector('h3')?.innerText.replace(/\n/g, ' ') || 'Featured Dish';
+        const categoryText = card.querySelector('.dish-meta span')?.textContent || '';
+        const bgImg = card.querySelector('.dish-image')?.style.backgroundImage;
+        let imgUrl = '';
+        if (bgImg && bgImg.includes('url')) {
+          imgUrl = bgImg.slice(5, -2).replace(/['"]/g, '');
+        }
+
+        const found = allItems.find(i => 
+          i.name.toLowerCase().includes(title.toLowerCase().split(' ')[0]) || 
+          title.toLowerCase().includes(i.name.toLowerCase().split(' ')[0])
+        );
+
+        const dish = found || {
+          id: `featured-${Date.now()}`,
+          name: title,
+          price: 28.00,
+          description: card.querySelector('.dish-meta p')?.textContent || 'Chef wood-fired featured dish.',
+          category: categoryText.includes('Starter') ? 'Starter' : categoryText.includes('Sweet') ? 'Dessert' : 'Main',
+          cuisine: 'Wood-Fired',
+          image: imgUrl
+        };
+        openDishModal(dish);
       });
     });
 
     qsa('.modal-close').forEach(button => button.addEventListener('click', closeModal));
     qs('.modal-layer')?.addEventListener('click', event => { if (event.target.classList.contains('modal-layer')) closeModal(); });
-    qs('.modal-add')?.removeEventListener('click', addCustomizedItem);
-    qs('.modal-add')?.addEventListener('click', addCustomizedItem);
+    const addBtn = qs('.modal-add');
+    if (addBtn) {
+      addBtn.onclick = addCustomizedItem;
+    }
   }
 
   function renderCustomizationModal(dish) {
@@ -444,6 +532,20 @@
       modalSection.className = `custom-modal ${schema.themeClass}`;
     }
 
+    // Dynamic Image Update on Order Form
+    const modalImage = qs('.modal-image');
+    if (modalImage) {
+      const fallbacks = {
+        drink: 'https://images.unsplash.com/photo-1544145945-f90425340c7e?auto=format&fit=crop&w=800&q=80',
+        dessert: 'https://images.unsplash.com/photo-1551024506-0bccd828d307?auto=format&fit=crop&w=800&q=80',
+        steak: 'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=800&q=80',
+        pizza: 'https://images.unsplash.com/photo-1604382354936-07c5d9983bd3?auto=format&fit=crop&w=800&q=80',
+        starter: 'https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?auto=format&fit=crop&w=800&q=80'
+      };
+      const displayImg = dish.image || fallbacks[foodType] || fallbacks.starter;
+      modalImage.style.backgroundImage = `url('${displayImg}')`;
+    }
+
     const badgeEl = qs('#modal-type-badge');
     if (badgeEl) {
       badgeEl.querySelector('.badge-icon').textContent = schema.badgeIcon;
@@ -451,7 +553,9 @@
     }
 
     const titleEl = qs('#modal-title');
-    if (titleEl) titleEl.textContent = dish.name;
+    if (titleEl) {
+      titleEl.innerHTML = `${dish.name} <span style="font-size:22px; color:var(--tomato); margin-left:12px; font-weight:700;">₵${Number(dish.price).toFixed(2)}</span>`;
+    }
 
     const descEl = qs('.modal-description');
     if (descEl) descEl.textContent = dish.description || 'Freshly prepared wood-fired culinary dish';

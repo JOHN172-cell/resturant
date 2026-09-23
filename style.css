@@ -1985,5 +1985,117 @@
   }
 }
 
+/* ==========================================
+   GHANAIAN & PAN-AFRICAN HOMEPAGE THEME
+   ========================================== */
+.ghana-kente-strip {
+  height: 5px;
+  width: 100%;
+  background: linear-gradient(90deg, #ce1126 0%, #ce1126 33%, #fcd116 33%, #fcd116 66%, #006b3f 66%, #006b3f 100%);
+  position: relative;
+  z-index: 30;
+}
+
+.adinkra-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 18px;
+  border-radius: 999px;
+  background: rgba(229, 164, 51, 0.16);
+  border: 1px solid rgba(229, 164, 51, 0.4);
+  color: var(--mustard);
+  font: 700 11px var(--mono);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 24px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(8px);
+}
+
+.adinkra-badge .adinkra-icon {
+  font-size: 16px;
+}
+
+.home-hero.ghana-hero:before {
+  background: linear-gradient(90deg, rgba(18, 15, 12, 0.88), rgba(18, 15, 12, 0.45)), url('https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=2200&q=85') center/cover;
+}
+
+.ghana-hero h1 em {
+  color: var(--mustard);
+  font-family: var(--display);
+  font-style: italic;
+}
+
+.ghana-hero-note {
+  border-left: 2px solid var(--mustard);
+  padding-left: 14px;
+}
+
+.ghana-intro-band {
+  background: radial-gradient(circle at top right, rgba(229, 164, 51, 0.08), transparent 60%), var(--paper-deep);
+}
+
+.dish-tag {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  background: var(--ink);
+  color: var(--mustard);
+  font: 700 9px var(--mono);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 5px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(229, 164, 51, 0.3);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  z-index: 2;
+}
+
+.ghana-dish-grid .dish-card {
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.ghana-dish-grid .dish-card:hover {
+  transform: translateY(-4px);
+}
+
+.ghana-card-btn {
+  margin-top: 12px;
+  border: 1px solid var(--ink);
+  border-radius: 6px;
+  padding: 8px 12px !important;
+  transition: all 0.2s ease;
+}
+
+.ghana-card-btn:hover {
+  background: var(--tomato);
+  color: #ffffff;
+  border-color: var(--tomato);
+}
+
+.ghana-quote-band {
+  background: linear-gradient(135deg, #c1522a 0%, #d84d35 50%, #9e361b 100%);
+  color: var(--paper);
+}
+
+.ghana-quote-band .eyebrow {
+  color: var(--mustard);
+}
+
+.ghana-quote-band blockquote em {
+  color: var(--mustard);
+  font-style: italic;
+}
+
+.ghana-cta-band {
+  background: linear-gradient(135deg, #e5a433 0%, #d4af37 100%);
+}
+
+.ghana-cta-band h2 {
+  color: var(--ink);
+}
+
+
 
 

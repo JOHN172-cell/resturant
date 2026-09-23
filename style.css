@@ -2088,13 +2088,105 @@
   font-style: italic;
 }
 
-.ghana-cta-band {
-  background: linear-gradient(135deg, #e5a433 0%, #d4af37 100%);
-}
-
 .ghana-cta-band h2 {
   color: var(--ink);
 }
+
+/* Drink Serving Stepper & Portion Controls */
+.drink-serving-section {
+  background: rgba(15, 76, 58, 0.05);
+  padding: 16px 14px;
+  border-radius: 12px;
+  margin-bottom: 16px;
+  border: 1px solid rgba(15, 76, 58, 0.2);
+}
+
+[data-theme="dark"] .drink-serving-section {
+  background: rgba(45, 180, 140, 0.08);
+  border-color: rgba(92, 230, 190, 0.25);
+}
+
+.drink-quantity-stepper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px dashed var(--line);
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.stepper-label {
+  font: 600 11px var(--mono);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--ink);
+}
+
+[data-theme="dark"] .stepper-label {
+  color: var(--paper);
+}
+
+.stepper-controls {
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--paper);
+}
+
+[data-theme="dark"] .stepper-controls {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.stepper-btn {
+  width: 32px;
+  height: 32px;
+  background: transparent;
+  font: 700 16px var(--sans);
+  color: var(--ink);
+  cursor: pointer;
+  transition: background 0.15s ease;
+  display: grid;
+  place-items: center;
+}
+
+[data-theme="dark"] .stepper-btn {
+  color: var(--paper);
+}
+
+.stepper-btn:hover {
+  background: var(--tomato);
+  color: #ffffff;
+}
+
+.stepper-controls input {
+  width: 42px;
+  height: 32px;
+  border: 0;
+  border-left: 1px solid var(--line);
+  border-right: 1px solid var(--line);
+  text-align: center;
+  font: 700 13px var(--mono);
+  background: transparent;
+  color: var(--ink);
+}
+
+[data-theme="dark"] .stepper-controls input {
+  color: var(--paper);
+}
+
+.stepper-subtotal {
+  font: 700 12px var(--mono);
+  color: var(--tomato);
+}
+
+[data-theme="dark"] .stepper-subtotal {
+  color: var(--mustard);
+}
+
 
 
 

@@ -268,6 +268,7 @@
           badgeIcon: '🍹',
           themeClass: 'modal-type-drink',
           buttonText: 'Add Beverage to Order',
+          isDrink: true,
           primary: {
             name: 'ice',
             heading: 'Ice Preference',
@@ -568,12 +569,47 @@
 
     let html = '';
 
+    // Drink Specific: Serving Unit & Quantity Stepper (Glasses vs Bottles)
+    if (schema.isDrink) {
+      const basePrice = Number(dish.price) || 18;
+      const bottlePrice = (basePrice * 3.2).toFixed(2);
+
+      html += `
+        <div class="custom-option-section drink-serving-section">
+          <div class="option-heading-styled">
+            <span class="opt-num">01</span>
+            <strong>Choose Serving Unit & Count</strong>
+          </div>
+          <div class="custom-pill-group drink-unit-pills">
+            <label class="custom-pill-label">
+              <input type="radio" name="drink-serving-unit" value="glass" checked data-multiplier="1.0" data-unit="Glass" data-plural="Glasses">
+              <span class="pill-btn">By the Glass 🥂 <span class="pill-cost">₵${basePrice.toFixed(2)}</span></span>
+            </label>
+            <label class="custom-pill-label">
+              <input type="radio" name="drink-serving-unit" value="bottle" data-multiplier="3.2" data-unit="Bottle" data-plural="Bottles">
+              <span class="pill-btn">Full Bottle 🍾 <span class="pill-cost">₵${bottlePrice}</span></span>
+            </label>
+          </div>
+          <div class="drink-quantity-stepper">
+            <span class="stepper-label">Number of <strong id="drink-unit-name-display">Glasses</strong>:</span>
+            <div class="stepper-controls">
+              <button type="button" class="stepper-btn" id="drink-qty-minus" aria-label="Decrease count">−</button>
+              <input type="number" id="drink-serving-count" value="1" min="1" max="20" readonly>
+              <button type="button" class="stepper-btn" id="drink-qty-plus" aria-label="Increase count">+</button>
+            </div>
+            <span class="stepper-subtotal" id="drink-calculated-total">Total: ₵${basePrice.toFixed(2)}</span>
+          </div>
+        </div>
+      `;
+    }
+
     // Primary Radio Option Group
     if (schema.primary) {
+      const stepNum = schema.isDrink ? '02' : '01';
       html += `
         <div class="custom-option-section">
           <div class="option-heading-styled">
-            <span class="opt-num">01</span>
+            <span class="opt-num">${stepNum}</span>
             <strong>${schema.primary.heading}</strong>
           </div>
           <div class="custom-pill-group">
@@ -590,10 +626,11 @@
 
     // Secondary Radio Option Group
     if (schema.secondary) {
+      const stepNum = schema.isDrink ? '03' : '02';
       html += `
         <div class="custom-option-section">
           <div class="option-heading-styled">
-            <span class="opt-num">02</span>
+            <span class="opt-num">${stepNum}</span>
             <strong>${schema.secondary.heading}</strong>
           </div>
           <div class="custom-pill-group">
@@ -610,10 +647,11 @@
 
     // Extras Checkbox Group
     if (schema.extras && schema.extras.length) {
+      const stepNum = schema.isDrink ? '04' : '03';
       html += `
         <div class="custom-option-section">
           <div class="option-heading-styled">
-            <span class="opt-num">03</span>
+            <span class="opt-num">${stepNum}</span>
             <strong>Add Gourmet Extras</strong>
           </div>
           <div class="custom-pill-group">
@@ -634,11 +672,55 @@
     html += `
       <label class="custom-note-field">
         <span>${schema.noteLabel || 'Special instructions'}</span>
-        <input type="text" id="modal-note-input" placeholder="e.g. sauce on side, allergies, extra crisp...">
+        <input type="text" id="modal-note-input" placeholder="e.g. extra cold, on the rocks, allergies...">
       </label>
     `;
 
     optionsContainer.innerHTML = html;
+
+    // Attach Interactive Drink Stepper & Live Price Calculations
+    if (schema.isDrink) {
+      const basePrice = Number(dish.price) || 18;
+      const unitRadios = qsa('input[name="drink-serving-unit"]');
+      const countInput = qs('#drink-serving-count');
+      const minusBtn = qs('#drink-qty-minus');
+      const plusBtn = qs('#drink-qty-plus');
+      const unitDisplay = qs('#drink-unit-name-display');
+      const subtotalEl = qs('#drink-calculated-total');
+
+      function updateDrinkCalculations() {
+        const selectedRadio = qs('input[name="drink-serving-unit"]:checked');
+        const multiplier = Number(selectedRadio?.dataset.multiplier || 1.0);
+        const unitPlural = selectedRadio?.dataset.plural || 'Glasses';
+        const count = Math.max(1, Number(countInput?.value || 1));
+
+        if (unitDisplay) unitDisplay.textContent = unitPlural;
+
+        let extraCost = 0;
+        qsa('input[name="modal-extra-opt"]:checked').forEach(chk => {
+          extraCost += Number(chk.dataset.cost || 0);
+        });
+
+        const singleUnitPrice = basePrice * multiplier;
+        const total = (singleUnitPrice * count) + extraCost;
+
+        if (subtotalEl) subtotalEl.textContent = `Total: ₵${total.toFixed(2)}`;
+        if (titleEl) {
+          titleEl.innerHTML = `${dish.name} <span style="font-size:22px; color:var(--tomato); margin-left:12px; font-weight:700;">₵${total.toFixed(2)}</span>`;
+        }
+      }
+
+      unitRadios.forEach(r => r.addEventListener('change', updateDrinkCalculations));
+      minusBtn?.addEventListener('click', () => {
+        let val = Number(countInput.value || 1);
+        if (val > 1) { countInput.value = val - 1; updateDrinkCalculations(); }
+      });
+      plusBtn?.addEventListener('click', () => {
+        let val = Number(countInput.value || 1);
+        if (val < 20) { countInput.value = val + 1; updateDrinkCalculations(); }
+      });
+      qsa('input[name="modal-extra-opt"]').forEach(chk => chk.addEventListener('change', updateDrinkCalculations));
+    }
   }
 
   function closeModal() {
@@ -650,7 +732,8 @@
 
   function addCustomizedItem() {
     if (!selectedDish) return;
-    const schema = selectedDish.schema || getFoodTypeSchema(detectFoodType(selectedDish));
+    const foodType = selectedDish.foodType || detectFoodType(selectedDish);
+    const schema = selectedDish.schema || getFoodTypeSchema(foodType);
 
     const primaryChoice = qs('input[name="modal-primary-opt"]:checked')?.value || '';
     const secondaryChoice = qs('input[name="modal-secondary-opt"]:checked')?.value || '';
@@ -672,8 +755,25 @@
 
     const notes = qs('#modal-note-input')?.value.trim() || '';
 
-    // Construct clean summary string for ticket & cart
+    let itemQuantity = 1;
+    let itemPrice = selectedDish.price + extraCost;
     const parts = [];
+
+    if (schema.isDrink) {
+      const selectedUnitRadio = qs('input[name="drink-serving-unit"]:checked');
+      const unitType = selectedUnitRadio?.value || 'glass';
+      const multiplier = Number(selectedUnitRadio?.dataset.multiplier || 1.0);
+      const drinkCount = Math.max(1, Number(qs('#drink-serving-count')?.value || 1));
+
+      const unitName = unitType === 'bottle' 
+        ? (drinkCount > 1 ? `${drinkCount} Bottles (750ml)` : '1 Bottle (750ml)') 
+        : (drinkCount > 1 ? `${drinkCount} Glasses` : '1 Glass');
+
+      parts.push(`Portion: ${unitName}`);
+      itemPrice = (selectedDish.price * multiplier) + extraCost;
+      itemQuantity = drinkCount;
+    }
+
     if (primaryChoice) parts.push(primaryChoice);
     if (secondaryChoice) parts.push(secondaryChoice);
     if (extraLabels.length) parts.push(`+ ${extraLabels.join(', ')}`);
@@ -683,14 +783,14 @@
 
     const item = {
       ...selectedDish,
-      foodType: selectedDish.foodType || detectFoodType(selectedDish),
+      foodType,
       primaryChoice,
       secondaryChoice,
       extras: extraLabels,
       notes,
       customSummary,
-      price: selectedDish.price + extraCost,
-      quantity: 1
+      price: itemPrice,
+      quantity: itemQuantity
     };
 
     const match = cart.find(entry => 
@@ -700,7 +800,7 @@
     );
 
     if (match) {
-      match.quantity += 1;
+      match.quantity += itemQuantity;
     } else {
       cart.push(item);
     }

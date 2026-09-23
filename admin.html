@@ -819,11 +819,21 @@
       cursor: pointer;
     }
 
+    .dietary-options {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
     .dietary-option input[type="checkbox"] {
       width: 18px;
       height: 18px;
       margin: 0;
       accent-color: var(--admin-accent);
+    }
+
+    @media (max-width: 520px) {
+      .dietary-options { grid-template-columns: 1fr; }
     }
 
     .upload-zone {
@@ -1249,10 +1259,16 @@
                   <span>Description (Optional)</span>
                   <input type="text" name="description" placeholder="e.g. Garlic butter, sumac, toasted almonds">
                 </label>
-                <label class="dietary-option" style="grid-column: 1 / -1;">
-                  <input type="checkbox" name="vegan">
-                  <span>Vegan-friendly dish</span>
-                </label>
+                <div class="dietary-options" style="grid-column: 1 / -1;">
+                  <label class="dietary-option">
+                    <input type="checkbox" name="vegan">
+                    <span>Vegan-friendly dish</span>
+                  </label>
+                  <label class="dietary-option">
+                    <input type="checkbox" name="glutenFree">
+                    <span>Gluten-free dish</span>
+                  </label>
+                </div>
                 <label class="upload-field" style="grid-column: 1 / -1;">
                   <span>Dish picture (Optional)</span>
                   <div class="upload-zone" id="food-upload-zone" tabindex="0" role="button" aria-controls="food-images">

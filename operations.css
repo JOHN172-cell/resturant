@@ -19,9 +19,22 @@
   z-index: 20;
   border-bottom: 1px solid var(--ops-border);
   background: rgba(255, 253, 249, 0.84);
+  color: var(--ink);
   backdrop-filter: blur(18px);
   -webkit-backdrop-filter: blur(18px);
 }
+
+/* The admin header was originally dark. Set explicit text colours now that it
+   sits on a light glass surface. */
+.admin-header .brand-name,
+.admin-header-label strong,
+.admin-exit,
+.orders-nav a { color: var(--ink); }
+.admin-header-label { border-left-color: var(--ops-border); }
+.admin-header-label span { color: var(--tomato); }
+.orders-nav a:hover,
+.orders-nav a.active,
+.admin-exit:hover { color: var(--tomato); }
 
 .orders-main { max-width: 1560px; padding-top: clamp(40px, 6vw, 78px); }
 

@@ -59,6 +59,7 @@
       description: String(item.description || ''),
       vegetarian: Boolean(item.vegetarian),
       vegan: Boolean(item.vegan),
+      glutenFree: Boolean(item.glutenFree),
       image: String(item.image || (Array.isArray(item.images) ? item.images[0] : '') || ''),
       images: Array.isArray(item.images) ? item.images.map(String) : (item.image ? [String(item.image)] : [])
     }));
@@ -252,6 +253,7 @@
     const price = Number(formData.get('price'));
     const description = String(formData.get('description') || '').trim();
     const vegan = formData.get('vegan') === 'on';
+    const glutenFree = formData.get('glutenFree') === 'on';
     const imageFiles = formData.getAll('images').filter(file => file && file.size > 0);
 
     if (!name || !Number.isFinite(price) || price <= 0) {
@@ -289,6 +291,7 @@
       // Vegan dishes are also vegetarian, so both guest-menu filters work.
       vegetarian: vegan,
       vegan,
+      glutenFree,
       image: images[0] || categoryFallbacks[category] || categoryFallbacks.Main,
       images
     };

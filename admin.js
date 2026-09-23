@@ -57,6 +57,8 @@
       cuisine: String(item.cuisine || 'Continental'),
       price: Number(item.price) || 0,
       description: String(item.description || ''),
+      vegetarian: Boolean(item.vegetarian),
+      vegan: Boolean(item.vegan),
       image: String(item.image || (Array.isArray(item.images) ? item.images[0] : '') || ''),
       images: Array.isArray(item.images) ? item.images.map(String) : (item.image ? [String(item.image)] : [])
     }));
@@ -249,6 +251,7 @@
     const cuisine = String(formData.get('cuisine') || 'Continental');
     const price = Number(formData.get('price'));
     const description = String(formData.get('description') || '').trim();
+    const vegan = formData.get('vegan') === 'on';
     const imageFiles = formData.getAll('images').filter(file => file && file.size > 0);
 
     if (!name || !Number.isFinite(price) || price <= 0) {
@@ -283,6 +286,9 @@
       cuisine,
       price,
       description: description || `${cuisine} ${category.toLowerCase()} specialty`,
+      // Vegan dishes are also vegetarian, so both guest-menu filters work.
+      vegetarian: vegan,
+      vegan,
       image: images[0] || categoryFallbacks[category] || categoryFallbacks.Main,
       images
     };

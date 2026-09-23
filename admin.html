@@ -808,6 +808,24 @@
       clip-path: inset(50%);
     }
 
+    .dietary-option {
+      display: flex !important;
+      align-items: center;
+      gap: 10px !important;
+      padding: 12px 14px;
+      border: 1px solid #d4c8b2;
+      border-radius: 12px;
+      background: #ffffff;
+      cursor: pointer;
+    }
+
+    .dietary-option input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      margin: 0;
+      accent-color: var(--admin-accent);
+    }
+
     .upload-zone {
       display: grid;
       justify-items: center;
@@ -1230,6 +1248,10 @@
                 <label style="grid-column: 1 / -1;">
                   <span>Description (Optional)</span>
                   <input type="text" name="description" placeholder="e.g. Garlic butter, sumac, toasted almonds">
+                </label>
+                <label class="dietary-option" style="grid-column: 1 / -1;">
+                  <input type="checkbox" name="vegan">
+                  <span>Vegan-friendly dish</span>
                 </label>
                 <label class="upload-field" style="grid-column: 1 / -1;">
                   <span>Dish picture (Optional)</span>

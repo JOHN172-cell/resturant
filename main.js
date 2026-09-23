@@ -245,6 +245,9 @@
     if (category.includes('drink') || category.includes('beverage') || cuisine.includes('drink') || cuisine.includes('cocktail') || name.includes('spritz') || name.includes('elixir') || name.includes('wine') || name.includes('juice') || name.includes('beverage')) {
       return 'drink';
     }
+    if (category.includes('local dish') || cuisine.includes('local dish')) {
+      return 'local';
+    }
     if (category.includes('dessert') || category.includes('sweet') || cuisine.includes('patisserie') || name.includes('panna cotta') || name.includes('cake') || name.includes('ice cream') || name.includes('tart') || name.includes('chocolate') || name.includes('sweet')) {
       return 'dessert';
     }
@@ -296,6 +299,7 @@
           badgeIcon: '🍰',
           themeClass: 'modal-type-dessert',
           buttonText: 'Add Sweet Treat to Order',
+          hasPortionSelector: true,
           primary: {
             name: 'temp',
             heading: 'Serving Temperature',
@@ -323,6 +327,7 @@
           badgeIcon: '🥩',
           themeClass: 'modal-type-steak',
           buttonText: 'Add Grill Special to Order',
+          hasPortionSelector: true,
           primary: {
             name: 'doneness',
             heading: 'Meat Cooking Temperature',
@@ -350,6 +355,7 @@
           badgeIcon: '🍕',
           themeClass: 'modal-type-pizza',
           buttonText: 'Add Artisan Dish to Order',
+          hasPortionSelector: true,
           primary: {
             name: 'crust',
             heading: 'Crust / Base Preference',
@@ -371,6 +377,16 @@
           noteLabel: 'Special crust or topping requests'
         };
 
+      case 'local':
+        return {
+          badgeTitle: 'Local Dish Order',
+          badgeIcon: '🍲',
+          themeClass: 'modal-type-starter',
+          buttonText: 'Add Local Dish to Order',
+          hasPortionSelector: true,
+          noteLabel: ''
+        };
+
       case 'starter':
       default:
         return {
@@ -378,6 +394,7 @@
           badgeIcon: '🥗',
           themeClass: 'modal-type-starter',
           buttonText: 'Add Starter to Order',
+          hasPortionSelector: true,
           primary: {
             name: 'dressing',
             heading: 'Serving & Dressing Style',
@@ -603,9 +620,30 @@
       `;
     }
 
+    // Food portions: every food item is ordered by portion. Local dishes use
+    // this as their only customisation step.
+    if (schema.hasPortionSelector) {
+      html += `
+        <div class="custom-option-section drink-serving-section food-portion-section">
+          <div class="option-heading-styled">
+            <span class="opt-num">01</span>
+            <strong>Number of Portions</strong>
+          </div>
+          <div class="drink-quantity-stepper">
+            <span class="stepper-label">Portions:</span>
+            <div class="stepper-controls">
+              <button type="button" class="stepper-btn" id="food-portion-minus" aria-label="Decrease portions">−</button>
+              <input type="number" id="food-portion-count" value="1" min="1" max="20" readonly>
+              <button type="button" class="stepper-btn" id="food-portion-plus" aria-label="Increase portions">+</button>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
     // Primary Radio Option Group
     if (schema.primary) {
-      const stepNum = schema.isDrink ? '02' : '01';
+      const stepNum = schema.isDrink ? '02' : (schema.hasPortionSelector ? '02' : '01');
       html += `
         <div class="custom-option-section">
           <div class="option-heading-styled">
@@ -626,7 +664,7 @@
 
     // Secondary Radio Option Group
     if (schema.secondary) {
-      const stepNum = schema.isDrink ? '03' : '02';
+      const stepNum = schema.isDrink ? '03' : (schema.hasPortionSelector ? '03' : '02');
       html += `
         <div class="custom-option-section">
           <div class="option-heading-styled">
@@ -647,7 +685,7 @@
 
     // Extras Checkbox Group
     if (schema.extras && schema.extras.length) {
-      const stepNum = schema.isDrink ? '04' : '03';
+      const stepNum = schema.isDrink ? '04' : (schema.hasPortionSelector ? '04' : '03');
       html += `
         <div class="custom-option-section">
           <div class="option-heading-styled">
@@ -668,13 +706,15 @@
       `;
     }
 
-    // Note Input Field
-    html += `
-      <label class="custom-note-field">
-        <span>${schema.noteLabel || 'Special instructions'}</span>
-        <input type="text" id="modal-note-input" placeholder="e.g. extra cold, on the rocks, allergies...">
-      </label>
-    `;
+    // Local dishes only ask for portions; other item types can include a note.
+    if (schema.noteLabel) {
+      html += `
+        <label class="custom-note-field">
+          <span>${schema.noteLabel}</span>
+          <input type="text" id="modal-note-input" placeholder="e.g. extra cold, on the rocks, allergies...">
+        </label>
+      `;
+    }
 
     optionsContainer.innerHTML = html;
 
@@ -720,6 +760,18 @@
         if (val < 20) { countInput.value = val + 1; updateDrinkCalculations(); }
       });
       qsa('input[name="modal-extra-opt"]').forEach(chk => chk.addEventListener('change', updateDrinkCalculations));
+    }
+
+    if (schema.hasPortionSelector) {
+      const portionInput = qs('#food-portion-count');
+      qs('#food-portion-minus')?.addEventListener('click', () => {
+        const value = Number(portionInput?.value || 1);
+        if (value > 1 && portionInput) portionInput.value = value - 1;
+      });
+      qs('#food-portion-plus')?.addEventListener('click', () => {
+        const value = Number(portionInput?.value || 1);
+        if (value < 20 && portionInput) portionInput.value = value + 1;
+      });
     }
   }
 
@@ -772,6 +824,12 @@
       parts.push(`Portion: ${unitName}`);
       itemPrice = (selectedDish.price * multiplier) + extraCost;
       itemQuantity = drinkCount;
+    }
+
+    if (schema.hasPortionSelector) {
+      const portionCount = Math.max(1, Number(qs('#food-portion-count')?.value || 1));
+      parts.push(`Portions: ${portionCount}`);
+      itemQuantity = portionCount;
     }
 
     if (primaryChoice) parts.push(primaryChoice);

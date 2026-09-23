@@ -67,7 +67,7 @@ app.use(express.static(__dirname));
 
 // Healthcheck
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', server: 'Velvet Plate Node Backend', timestamp: new Date().toISOString() });
+  res.json({ status: 'ok', server: 'Taste Africa Node Backend', timestamp: new Date().toISOString() });
 });
 
 // GET Menu Items
@@ -206,5 +206,5 @@ app.use((req, res) => {
 
 // Start Server
 app.listen(PORT, () => {
-  console.log(`🚀 Velvet Plate Express Backend server running on http://localhost:${PORT}`);
+  console.log(`🚀 Taste Africa Express Backend server running on http://localhost:${PORT}`);
 });

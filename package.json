@@ -1,8 +1,8 @@
 {
-  "name": "the-velvet-plate-restaurant",
+  "name": "taste-africa-restaurant",
   "version": "1.0.0",
   "private": true,
-  "description": "The Velvet Plate restaurant website",
+  "description": "Taste Africa restaurant website",
   "scripts": {
     "start": "node server.js",
     "dev": "node server.js"

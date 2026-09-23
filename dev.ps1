@@ -16,6 +16,6 @@ if (-not $listener) {
 }
 
 Start-Process $url
-Write-Host "The Velvet Plate is running at $url"
+Write-Host "Taste Africa is running at $url"
 Write-Host "Press Ctrl+C or close this window to stop the server."
 Wait-Process -Id (Get-NetTCPConnection -LocalPort $port -State Listen -ErrorAction SilentlyContinue | Select-Object -First 1 -ExpandProperty OwningProcess) -ErrorAction SilentlyContinue

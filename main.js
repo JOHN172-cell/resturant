@@ -443,7 +443,7 @@
           <span class="success-symbol">✓</span>
           <p class="eyebrow">Order received</p>
           <h2>That’s dinner sorted.</h2>
-          <p>Your order is on its way to the kitchen. We’ll see you at The Velvet Plate.</p>
+          <p>Your order is on its way to the kitchen. We’ll see you at Taste Africa.</p>
           <button class="button button-dark checkout-done" type="button">Back to the menu <span>↗</span></button>
         </section>
       </div>

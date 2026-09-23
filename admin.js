@@ -142,7 +142,7 @@
     qsa('[data-menu-id]', container).forEach(button => {
       button.addEventListener('click', () => {
         const id = button.dataset.menuId;
-        availability[id] = availability[id] === false;
+        availability[id] = !(availability[id] !== false);
         localStorage.setItem(menuKey, JSON.stringify(availability));
         
         // Sync with API

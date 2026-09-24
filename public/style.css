@@ -1753,7 +1753,7 @@
    }
  }
 
- /* Checkout fulfilment and delivery pricing */
+ /* Pickup checkout and payment */
  .checkout-selection {
    text-align: left
  }
@@ -1784,18 +1784,11 @@
    font-weight: 400
  }
 
- .fulfillment-options,
- .delivery-location-options,
  .pickup-payment-timing,
  .payment-method-options {
    display: grid;
    gap: 9px;
    margin: 16px 0
- }
-
- .delivery-location-options {
-   padding-top: 5px;
-   border-top: 1px solid rgba(26, 10, 0, .22)
  }
 
  .payment-options {
@@ -1804,7 +1797,7 @@
    border-top: 1px solid rgba(26, 10, 0, .22)
  }
 
- .payment-options .delivery-location-title {
+ .payment-options .checkout-section-title {
    margin-top: 9px
  }
 
@@ -1812,21 +1805,12 @@
    margin-top: 9px
  }
 
- .delivery-payment-notice {
-   margin: 12px 0 9px;
-   padding: 10px 12px;
-   background: rgba(196, 57, 32, .1);
-   color: var(--tomato);
-   font: 10px/1.45 var(--mono)
- }
-
  .pickup-payment-timing[hidden],
- .payment-method-options[hidden],
- .delivery-payment-notice[hidden] {
+ .payment-method-options[hidden] {
    display: none
  }
 
- .delivery-location-title {
+ .checkout-section-title {
    font: 10px var(--mono);
    text-transform: uppercase;
    letter-spacing: .08em;
@@ -1898,9 +1882,7 @@
 
  .checkout-success[hidden],
  .checkout-selection[hidden],
- .checkout-contact[hidden],
- .delivery-contact-fields[hidden],
- .delivery-map[hidden] {
+ .checkout-contact[hidden] {
    display: none
  }
 
@@ -1932,8 +1914,7 @@
    text-transform: uppercase
  }
 
- .checkout-contact-form,
- .delivery-contact-fields {
+ .checkout-contact-form {
    display: grid;
    gap: 14px
  }
@@ -1955,17 +1936,6 @@
    background: rgba(255, 255, 255, .45);
    color: var(--ink);
    font: 14px var(--body)
- }
-
- .delivery-map {
-   height: 190px;
-   border: 1px solid rgba(26, 10, 0, .34)
- }
-
- .delivery-map-frame {
-   width: 100%;
-   height: 100%;
-   border: 0
  }
 
  .checkout-place-order {

@@ -463,24 +463,14 @@
           <button class="modal-close checkout-close" type="button" aria-label="Close checkout">×</button>
           <div class="checkout-selection">
             <p class="eyebrow">Checkout</p>
-            <h2 id="checkout-title">How would you like your order?</h2>
+            <h2 id="checkout-title">Pickup checkout</h2>
             <div class="checkout-price-row"><span>Food subtotal</span><strong class="checkout-subtotal">₵0.00</strong></div>
-            <div class="fulfillment-options">
-              <label class="fulfillment-choice"><input type="radio" name="fulfillment-method" value="pickup" checked><span><strong>Pickup</strong><small>Collect at Taste Africa · No extra fee</small></span></label>
-              <label class="fulfillment-choice"><input type="radio" name="fulfillment-method" value="delivery"><span><strong>Delivery</strong><small>Choose your delivery area and see the final price</small></span></label>
-            </div>
-            <div class="delivery-location-options" hidden>
-              <p class="delivery-location-title">Delivery area</p>
-              <label class="fulfillment-choice"><input type="radio" name="delivery-area" value="tema" checked><span><strong>Inside Tema</strong><small>Delivery fee: <b class="tema-delivery-fee">₵0.00</b> (+25%)</small></span></label>
-              <label class="fulfillment-choice"><input type="radio" name="delivery-area" value="accra"><span><strong>Outside Tema / Accra</strong><small>Delivery fee: <b class="accra-delivery-fee">₵0.00</b> (+40%)</small></span></label>
-            </div>
             <section class="payment-options" aria-labelledby="payment-title">
-              <p class="delivery-location-title" id="payment-title">Payment</p>
+              <p class="checkout-section-title" id="payment-title">Pickup payment</p>
               <div class="pickup-payment-timing">
                 <label class="fulfillment-choice"><input type="radio" name="pickup-payment-timing" value="before-pickup" checked><span><strong>Pay before pickup</strong><small>Pay online now with your preferred method.</small></span></label>
                 <label class="fulfillment-choice"><input type="radio" name="pickup-payment-timing" value="on-pickup"><span><strong>Pay on pickup</strong><small>Pay when you collect your order at Taste Africa.</small></span></label>
               </div>
-              <p class="delivery-payment-notice" hidden>Delivery orders must be paid online before they can be confirmed.</p>
               <div class="payment-method-options">
                 <label class="fulfillment-choice"><input type="radio" name="payment-method" value="card" checked><span><strong>Card</strong><small>Debit or credit card</small></span></label>
                 <label class="fulfillment-choice"><input type="radio" name="payment-method" value="mobile-money"><span><strong>Mobile Money</strong><small>MTN MoMo or another mobile money wallet</small></span></label>
@@ -498,13 +488,6 @@
             <form class="checkout-contact-form">
               <label class="checkout-field">Full name<input name="customer-name" type="text" autocomplete="name" required></label>
               <label class="checkout-field">Phone number<input name="customer-phone" type="tel" autocomplete="tel" required></label>
-              <div class="delivery-contact-fields" hidden>
-                <label class="checkout-field">Email address (Optional)<input name="customer-email" type="email" autocomplete="email"></label>
-                <label class="checkout-field">Delivery location<input name="delivery-address" type="text" autocomplete="street-address" placeholder="Enter your address or landmark"></label>
-                <div class="delivery-map" hidden>
-                  <iframe class="delivery-map-frame" title="Delivery location on Google Maps" loading="lazy"></iframe>
-                </div>
-              </div>
               <button class="button button-dark checkout-place-order" type="submit">Place order <span>→</span></button>
             </form>
           </div>
@@ -979,78 +962,35 @@
     const selection = qs('.checkout-selection', layer);
     const contact = qs('.checkout-contact', layer);
     const success = qs('.checkout-success', layer);
-    const locationOptions = qs('.delivery-location-options', layer);
     const pickupPaymentTiming = qs('.pickup-payment-timing', layer);
     const paymentMethodOptions = qs('.payment-method-options', layer);
-    const deliveryPaymentNotice = qs('.delivery-payment-notice', layer);
-    const methodRadios = qsa('input[name="fulfillment-method"]', layer);
-    const areaRadios = qsa('input[name="delivery-area"]', layer);
     const pickupPaymentRadios = qsa('input[name="pickup-payment-timing"]', layer);
     const paymentMethodRadios = qsa('input[name="payment-method"]', layer);
-    const selectedMethod = () => qs('input[name="fulfillment-method"]:checked', layer)?.value || 'pickup';
-    const selectedArea = () => qs('input[name="delivery-area"]:checked', layer)?.value || 'tema';
     const selectedPickupPaymentTiming = () => qs('input[name="pickup-payment-timing"]:checked', layer)?.value || 'before-pickup';
     const selectedPaymentMethod = () => qs('input[name="payment-method"]:checked', layer)?.value || 'card';
     const contactForm = qs('.checkout-contact-form', layer);
-    const deliveryContactFields = qs('.delivery-contact-fields', layer);
-    const emailInput = qs('input[name="customer-email"]', layer);
-    const addressInput = qs('input[name="delivery-address"]', layer);
-    const map = qs('.delivery-map', layer);
-    const mapFrame = qs('.delivery-map-frame', layer);
-
-    function updateDeliveryMap() {
-      const address = addressInput?.value.trim();
-      if (map) map.hidden = !address;
-      if (address && mapFrame) {
-        mapFrame.src = `https://www.google.com/maps?q=${encodeURIComponent(address)}&output=embed`;
-      }
-    }
 
     function showContactStep() {
-      const isDelivery = selectedMethod() === 'delivery';
-      const contactTitle = qs('.checkout-contact-title', layer);
-      const contactCopy = qs('.checkout-contact-copy', layer);
-      const placeOrderButton = qs('.checkout-place-order', layer);
       if (selection) selection.hidden = true;
       if (contact) contact.hidden = false;
-      if (deliveryContactFields) deliveryContactFields.hidden = !isDelivery;
-      if (emailInput) emailInput.required = false;
-      if (addressInput) addressInput.required = isDelivery;
-      if (contactTitle) contactTitle.textContent = isDelivery ? 'Where should we deliver?' : 'Who is collecting this order?';
-      if (contactCopy) contactCopy.textContent = isDelivery
-        ? 'Add your contact details and delivery location before placing your prepaid order.'
-        : 'We’ll use these details if we need to reach you about your order.';
-      if (placeOrderButton) placeOrderButton.innerHTML = isDelivery
-        ? `Place prepaid delivery order <span>→</span>`
-        : `Place pickup order <span>→</span>`;
-      updateDeliveryMap();
     }
 
     function updateCheckoutTotals() {
       const foodSubtotal = subtotal();
-      const isDelivery = selectedMethod() === 'delivery';
-      const feeRate = !isDelivery ? 0 : (selectedArea() === 'accra' ? 0.40 : 0.25);
-      const fee = foodSubtotal * feeRate;
-      const total = foodSubtotal + fee;
+      const total = foodSubtotal;
 
       qsa('.checkout-subtotal', layer).forEach(element => { element.textContent = money(foodSubtotal); });
-      qsa('.tema-delivery-fee', layer).forEach(element => { element.textContent = money(foodSubtotal * 0.25); });
-      qsa('.accra-delivery-fee', layer).forEach(element => { element.textContent = money(foodSubtotal * 0.40); });
       qsa('.checkout-final-total', layer).forEach(element => { element.textContent = money(total); });
-      if (locationOptions) locationOptions.hidden = !isDelivery;
 
       const paymentBeforePickup = selectedPickupPaymentTiming() === 'before-pickup';
-      if (pickupPaymentTiming) pickupPaymentTiming.hidden = isDelivery;
-      if (deliveryPaymentNotice) deliveryPaymentNotice.hidden = !isDelivery;
-      if (paymentMethodOptions) paymentMethodOptions.hidden = !isDelivery && !paymentBeforePickup;
+      if (pickupPaymentTiming) pickupPaymentTiming.hidden = false;
+      if (paymentMethodOptions) paymentMethodOptions.hidden = !paymentBeforePickup;
 
       const confirmButton = qs('.checkout-confirm', layer);
       if (confirmButton) {
-        confirmButton.innerHTML = isDelivery
-          ? `Pay ${money(total)} & confirm delivery <span>→</span>`
-          : paymentBeforePickup
-            ? `Pay ${money(total)} & confirm pickup <span>→</span>`
-            : `Confirm pickup order <span>→</span>`;
+        confirmButton.innerHTML = paymentBeforePickup
+          ? `Pay ${money(total)} & confirm pickup <span>→</span>`
+          : `Confirm pickup order <span>→</span>`;
       }
     }
 
@@ -1059,12 +999,8 @@
       if (contact) contact.hidden = true;
       if (success) success.hidden = true;
       contactForm?.reset();
-      const pickup = qs('input[name="fulfillment-method"][value="pickup"]', layer);
-      const tema = qs('input[name="delivery-area"][value="tema"]', layer);
       const beforePickup = qs('input[name="pickup-payment-timing"][value="before-pickup"]', layer);
       const card = qs('input[name="payment-method"][value="card"]', layer);
-      if (pickup) pickup.checked = true;
-      if (tema) tema.checked = true;
       if (beforePickup) beforePickup.checked = true;
       if (card) card.checked = true;
       updateCheckoutTotals();
@@ -1079,8 +1015,6 @@
       document.body.classList.add('locked');
     }));
 
-    methodRadios.forEach(radio => radio.addEventListener('change', updateCheckoutTotals));
-    areaRadios.forEach(radio => radio.addEventListener('change', updateCheckoutTotals));
     pickupPaymentRadios.forEach(radio => radio.addEventListener('change', updateCheckoutTotals));
     paymentMethodRadios.forEach(radio => radio.addEventListener('change', updateCheckoutTotals));
 
@@ -1100,30 +1034,24 @@
       if (selection) selection.hidden = false;
     });
 
-    addressInput?.addEventListener('input', updateDeliveryMap);
-
     contactForm?.addEventListener('submit', event => {
       event.preventDefault();
       if (!cart.length) return;
       const foodSubtotal = subtotal();
-      const method = selectedMethod();
-      const area = method === 'delivery' ? selectedArea() : null;
-      const feeRate = method === 'delivery' ? (area === 'accra' ? 0.40 : 0.25) : 0;
-      const deliveryFee = foodSubtotal * feeRate;
-      const total = foodSubtotal + deliveryFee;
-      const paymentTiming = method === 'delivery' ? 'before-delivery' : selectedPickupPaymentTiming();
+      const total = foodSubtotal;
+      const paymentTiming = selectedPickupPaymentTiming();
       const paymentMethod = paymentTiming === 'on-pickup' ? null : selectedPaymentMethod();
       const orderData = {
         id: `order-${Date.now()}`,
         createdAt: new Date().toISOString(),
         items: cart,
-        fulfillment: { method, area, feeRate, deliveryFee },
+        fulfillment: { method: 'pickup' },
         payment: { timing: paymentTiming, method: paymentMethod },
         customer: {
           name: qs('input[name="customer-name"]', layer)?.value.trim(),
           phone: qs('input[name="customer-phone"]', layer)?.value.trim(),
-          email: method === 'delivery' ? emailInput?.value.trim() : null,
-          address: method === 'delivery' ? addressInput?.value.trim() : null
+          email: null,
+          address: null
         },
         subtotal: foodSubtotal,
         total,
@@ -1145,11 +1073,9 @@
       if (contact) contact.hidden = true;
       if (success) success.hidden = false;
       const successCopy = qs('.checkout-success-copy', layer);
-      if (successCopy) successCopy.textContent = method === 'delivery'
-        ? `Your ${area === 'accra' ? 'Outside Tema / Accra' : 'Inside Tema'} delivery order has been received and paid before delivery.`
-        : paymentTiming === 'on-pickup'
-          ? 'Your pickup order is on its way to the kitchen. Pay when you collect it at Taste Africa.'
-          : 'Your pickup order has been received and paid. We’ll see you at Taste Africa.';
+      if (successCopy) successCopy.textContent = paymentTiming === 'on-pickup'
+        ? 'Your pickup order is on its way to the kitchen. Pay when you collect it at Taste Africa.'
+        : 'Your pickup order has been received and paid. We’ll see you at Taste Africa.';
     });
 
     qs('.checkout-done', layer)?.addEventListener('click', () => {

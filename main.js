@@ -263,7 +263,10 @@
     return 'general';
   }
 
-  function getFoodTypeSchema(foodType) {
+  function getFoodTypeSchema(foodType, dish = {}) {
+    const drinkStyle = String(dish.cuisine || dish.category || '').toLowerCase();
+    const usesGlassSizes = foodType === 'drink' && (drinkStyle.includes('local drink') || drinkStyle.includes('juice'));
+
     switch (foodType) {
       case 'drink':
         return {
@@ -273,11 +276,11 @@
           buttonText: 'Add Beverage to Order',
           isDrink: true,
           sizeSelector: {
-            heading: 'Local Drink & Juice Size',
+            heading: usesGlassSizes ? 'Local Drink & Juice Glass Size' : 'Drink Size',
             options: [
-              { label: 'Small', multiplier: 1, selected: true },
-              { label: 'Large', multiplier: 1.15 },
-              { label: 'Extra Large', multiplier: 1.3 }
+              { label: usesGlassSizes ? 'Small Glass' : 'Small', multiplier: 1, selected: true },
+              { label: usesGlassSizes ? 'Large Glass' : 'Large', multiplier: 1.15 },
+              { label: usesGlassSizes ? 'Extra-Large Glass' : 'Extra Large', multiplier: 1.3 }
             ]
           },
           primary: {
@@ -307,7 +310,14 @@
           badgeIcon: '🍰',
           themeClass: 'modal-type-dessert',
           buttonText: 'Add Sweet Treat to Order',
-          hasPortionSelector: true,
+          sizeSelector: {
+            heading: 'Dessert Plate Size',
+            options: [
+              { label: 'Small Plate', multiplier: 1, selected: true },
+              { label: 'Large Plate', multiplier: 1.15 },
+              { label: 'Extra-Large Plate', multiplier: 1.3 }
+            ]
+          },
           primary: {
             name: 'temp',
             heading: 'Serving Temperature',
@@ -391,7 +401,14 @@
           badgeIcon: '🍲',
           themeClass: 'modal-type-starter',
           buttonText: 'Add Local Dish to Order',
-          hasPortionSelector: true,
+          sizeSelector: {
+            heading: 'Local Dish Bowl Size',
+            options: [
+              { label: 'Small Bowl', multiplier: 1, selected: true },
+              { label: 'Large Bowl', multiplier: 1.15 },
+              { label: 'Extra-Large Bowl', multiplier: 1.3 }
+            ]
+          },
           noteLabel: ''
         };
 
@@ -556,7 +573,7 @@
 
   function renderCustomizationModal(dish) {
     const foodType = detectFoodType(dish);
-    const schema = getFoodTypeSchema(foodType);
+    const schema = getFoodTypeSchema(foodType, dish);
     selectedDish.foodType = foodType;
     selectedDish.schema = schema;
 
@@ -768,7 +785,7 @@
   function addCustomizedItem() {
     if (!selectedDish) return;
     const foodType = selectedDish.foodType || detectFoodType(selectedDish);
-    const schema = selectedDish.schema || getFoodTypeSchema(foodType);
+    const schema = selectedDish.schema || getFoodTypeSchema(foodType, selectedDish);
 
     const primaryChoice = qs('input[name="modal-primary-opt"]:checked')?.value || '';
     const secondaryChoice = qs('input[name="modal-secondary-opt"]:checked')?.value || '';

@@ -1805,6 +1805,54 @@
    margin-top: 9px
  }
 
+ .payment-method-options {
+   grid-template-columns: repeat(3, minmax(0, 1fr))
+ }
+
+ .payment-choice span {
+   min-height: 88px;
+   display: grid;
+   place-items: center;
+   padding: 12px;
+   background: #fffdf8
+ }
+
+ .payment-logo {
+   display: block
+ }
+
+ .payment-logo-card {
+   width: 54px;
+   fill: none;
+   stroke: var(--ink);
+   stroke-width: 3;
+   stroke-linecap: round
+ }
+
+ .payment-logo-momo {
+   padding: 10px 8px;
+   border-radius: 7px;
+   background: #ffcb05;
+   color: #13220d;
+   font: 800 17px/1 var(--sans);
+   letter-spacing: -.08em
+ }
+
+ .payment-logo-telecel {
+   color: #e1251b;
+   font: 800 16px/.78 var(--sans);
+   letter-spacing: -.07em;
+   text-align: left
+ }
+
+ .payment-choice input:checked+span .payment-logo-card {
+   stroke: var(--paper)
+ }
+
+ .payment-choice input:checked+span .payment-logo-momo {
+   background: #ffdf5d
+ }
+
  .pickup-payment-timing[hidden],
  .payment-method-options[hidden] {
    display: none
@@ -1966,6 +2014,16 @@
 
    .checkout-confirm {
      margin-top: 16px
+   }
+
+   .payment-method-options {
+     grid-template-columns: repeat(3, minmax(0, 1fr));
+     gap: 6px
+   }
+
+   .payment-choice span {
+     min-height: 74px;
+     padding: 8px
    }
  }
 

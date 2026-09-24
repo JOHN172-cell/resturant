@@ -472,9 +472,9 @@
                 <label class="fulfillment-choice"><input type="radio" name="pickup-payment-timing" value="on-pickup"><span><strong>Pay on pickup</strong><small>Pay when you collect your order at Taste Africa.</small></span></label>
               </div>
               <div class="payment-method-options">
-                <label class="fulfillment-choice"><input type="radio" name="payment-method" value="card" checked><span><strong>Card</strong><small>Debit or credit card</small></span></label>
-                <label class="fulfillment-choice"><input type="radio" name="payment-method" value="mobile-money"><span><strong>Mobile Money</strong><small>MTN MoMo or another mobile money wallet</small></span></label>
-                <label class="fulfillment-choice"><input type="radio" name="payment-method" value="telecel-cash"><span><strong>Telecel Cash</strong><small>Pay with your Telecel Cash wallet</small></span></label>
+                <label class="fulfillment-choice payment-choice" aria-label="Pay by card"><input type="radio" name="payment-method" value="card" checked><span><svg class="payment-logo payment-logo-card" viewBox="0 0 58 40" aria-hidden="true"><rect x="2" y="2" width="54" height="36" rx="5"/><path d="M3 13h52M10 28h14"/></svg></span></label>
+                <label class="fulfillment-choice payment-choice" aria-label="Pay with Mobile Money"><input type="radio" name="payment-method" value="mobile-money"><span><b class="payment-logo payment-logo-momo" aria-hidden="true">MoMo</b></span></label>
+                <label class="fulfillment-choice payment-choice" aria-label="Pay with Telecel Cash"><input type="radio" name="payment-method" value="telecel-cash"><span><b class="payment-logo payment-logo-telecel" aria-hidden="true">telecel<br>cash</b></span></label>
               </div>
             </section>
             <div class="checkout-price-row checkout-total-row"><span>Total</span><strong class="checkout-final-total">₵0.00</strong></div>

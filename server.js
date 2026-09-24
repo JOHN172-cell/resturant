@@ -60,8 +60,8 @@ app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
-// Serve static frontend assets
-app.use(express.static(__dirname));
+// Serve the same public frontend directory used by Vercel's CDN.
+app.use(express.static(path.join(__dirname, 'public')));
 
 // --- API ENDPOINTS ---
 
@@ -199,9 +199,9 @@ app.put('/api/reservations/:id', (req, res) => {
   res.json({ success: true, reservation });
 });
 
-// Fallback to index.html for unknown SPA routes
+// Fallback to the public homepage for unknown SPA routes.
 app.use((req, res) => {
-  res.sendFile(path.join(__dirname, 'index.html'));
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 // Start Server

@@ -465,7 +465,7 @@
         const data = await response.json();
         active = data.active !== false;
       } catch (error) {
-        active = nextActive;
+        window.alert('The service status could not be updated. Please try again.');
       } finally {
         localStorage.setItem(serviceKey, String(active));
         update(active);

@@ -323,15 +323,22 @@
           secondary: {
             name: 'sweetness',
             heading: 'Sweetness & Flavor',
-            options: ['Standard Sweetness', '50% Less Sweet', 'Extra Sweet', 'Unsweetened'],
+            options: ['Standard Sweetness', 'Extra Sweet', 'Unsweetened'],
             defaultVal: 'Standard Sweetness'
           },
-          extras: [
-            { label: 'Fresh Lime Wheel', cost: 1.00 },
-            { label: 'Sparkling Soda Splash', cost: 1.00 },
-            { label: 'Fresh Mint Sprig', cost: 1.00 },
-            { label: 'Double Shot / Premium', cost: 5.00 }
-          ],
+          extras: usesGlassSizes
+            ? [
+                { label: 'Fresh Ginger & Lime Infusion', cost: 2.50 },
+                { label: 'Hibiscus & Mint Garnish', cost: 2.00 },
+                { label: 'Coconut Cream Float', cost: 3.00 },
+                { label: 'Premium Fruit Skewer', cost: 3.50 }
+              ]
+            : [
+                { label: 'Fresh Lime Wheel', cost: 1.00 },
+                { label: 'Sparkling Soda Splash', cost: 1.00 },
+                { label: 'Fresh Mint Sprig', cost: 1.00 },
+                { label: 'Double Shot / Premium', cost: 5.00 }
+              ],
           noteLabel: 'Special instructions for the bartender'
         };
 
@@ -348,12 +355,6 @@
               { label: 'Large Plate', multiplier: 1.15 },
               { label: 'Extra-Large Plate', multiplier: 1.3 }
             ]
-          },
-          primary: {
-            name: 'temp',
-            heading: 'Serving Temperature',
-            options: ['Chilled', 'Room Temp', 'Warm & Heated'],
-            defaultVal: 'Chilled'
           },
           secondary: {
             name: 'dairy',

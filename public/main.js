@@ -1215,7 +1215,9 @@
     });
   }
 
-  setupThemeToggle();
+  document.documentElement.removeAttribute('data-theme');
+  document.body.classList.remove('dark-mode', 'light-mode');
+  localStorage.removeItem('velvet-plate-theme');
   setupNavigation();
   setupStaffAccess();
   renderDynamicMenu();

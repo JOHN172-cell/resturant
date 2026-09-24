@@ -118,23 +118,7 @@
     if (!menuGrid) return;
 
     const menuItems = loadMenuItems();
-    const currentIds = new Set(menuItems.map(item => item.id));
-
-    // Remove cards for items that have been deleted from admin
-    qsa('.menu-card', menuGrid).forEach(card => {
-      if (card.dataset.id && !currentIds.has(card.dataset.id)) {
-        card.remove();
-      }
-    });
-
-    if (!menuItems.length) return;
-
-    const menuCards = qsa('.menu-card', menuGrid);
-    const existingIds = new Set(menuCards.map(card => card.dataset.id));
-    const list = menuItems.filter(item => !existingIds.has(item.id));
-    if (!list.length) return;
-
-    const html = list.map((item, index) => `
+    const html = menuItems.map((item, index) => `
       <article class="menu-card" 
         data-category="${item.category.toLowerCase()}" 
         data-id="${item.id}" 
@@ -145,7 +129,7 @@
         data-vegan="${item.vegan ? 'true' : 'false'}"
         data-gf="${item.glutenFree ? 'true' : 'false'}">
         <div class="menu-image"${item.image ? ` style="background-image:url('${item.image}')"` : ''}>
-          <span>${String(menuCards.length + index + 1).padStart(2, '0')}</span>
+          <span>${String(index + 1).padStart(2, '0')}</span>
         </div>
         <div class="menu-card-body">
           <span class="card-category">${item.cuisine} / ${item.category}</span>
@@ -159,7 +143,7 @@
       </article>
     `).join('');
 
-    menuGrid.insertAdjacentHTML('beforeend', html);
+    menuGrid.innerHTML = html;
     setupCustomization();
     applyMenuFilters();
   }
@@ -623,10 +607,10 @@
           imgUrl = bgImg.slice(5, -2).replace(/['"]/g, '');
         }
 
-        const found = allItems.find(i => 
-          i.name.toLowerCase().includes(title.toLowerCase().split(' ')[0]) || 
-          title.toLowerCase().includes(i.name.toLowerCase().split(' ')[0])
-        );
+        // Cards carry the exact menu ID. Prefix matching could open another
+        // drink or food item when two menu names shared a word.
+        const found = allItems.find(item => String(item.id) === String(card.dataset.id)) ||
+          allItems.find(item => item.name.trim().toLowerCase() === title.trim().toLowerCase());
 
         const dish = found || {
           id: `featured-${Date.now()}`,
@@ -1335,6 +1319,16 @@
   }
 
   window.addEventListener('menu:updated', () => {
+    renderDynamicMenu();
+    renderHomepageMenuHighlights();
+    applyMenuAvailability();
+    setupCustomization();
+  });
+
+  // Keep guest pages accurate when an administrator adds or edits a menu item
+  // from a different browser tab.
+  window.addEventListener('storage', event => {
+    if (event.key !== 'velvet-plate-menu-data' && event.key !== 'velvet-plate-availability') return;
     renderDynamicMenu();
     renderHomepageMenuHighlights();
     applyMenuAvailability();

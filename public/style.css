@@ -4468,3 +4468,254 @@ body.dark-mode .ghana-hero .hero-copy h1 em {
   border-color: #8b1a1a;
   color: #ffffff !important;
 }
+
+/* Bright, editorial treatment for the Taste Africa home page. */
+body[data-page="home"] {
+  background: #fffaf0;
+}
+
+body[data-page="home"] .announcement {
+  height: 36px;
+  padding: 10px;
+  background: linear-gradient(90deg, #e54528, #f58c27 52%, #f5bc28);
+  color: #fffdf7;
+  font-weight: 500;
+}
+
+body[data-page="home"] .announcement span {
+  color: #fffdf7;
+}
+
+body[data-page="home"] .site-header {
+  height: 88px;
+  background: rgba(255, 250, 240, .94);
+  border-bottom-color: rgba(94, 36, 12, .12);
+  backdrop-filter: blur(14px);
+}
+
+body[data-page="home"] .site-nav {
+  gap: 10px;
+}
+
+body[data-page="home"] .site-nav a {
+  padding: 9px 12px;
+  border-radius: 999px;
+}
+
+body[data-page="home"] .site-nav a.active,
+body[data-page="home"] .site-nav a:hover {
+  background: #fff0cd;
+  color: #b8401f;
+}
+
+body[data-page="home"] .site-nav a:after {
+  display: none;
+}
+
+body[data-page="home"] .cart-trigger {
+  padding: 10px 13px;
+  border-radius: 999px;
+  background: #1d553f;
+  color: #fffdf7;
+}
+
+body[data-page="home"] .cart-count {
+  background: #ffd65a;
+  color: #173c2c;
+}
+
+body[data-page="home"] .home-hero {
+  min-height: min(790px, calc(100vh - 124px));
+  isolation: isolate;
+  background: #b93120;
+}
+
+body[data-page="home"] .home-dish-slides,
+body[data-page="home"] .home-dish-slide {
+  position: absolute;
+  inset: 0;
+}
+
+body[data-page="home"] .home-dish-slides {
+  z-index: 0;
+}
+
+body[data-page="home"] .home-dish-slide {
+  background-position: center;
+  background-size: cover;
+  opacity: 0;
+  transform: scale(1.04);
+  transition: opacity .8s ease, transform 5s ease;
+}
+
+body[data-page="home"] .home-dish-slide.is-active {
+  opacity: 1;
+  transform: scale(1);
+}
+
+body[data-page="home"] .home-hero.ghana-hero:before {
+  z-index: 1;
+  background: linear-gradient(105deg, rgba(67, 20, 12, .92) 4%, rgba(169, 46, 25, .76) 49%, rgba(247, 150, 37, .28) 100%);
+  filter: none;
+}
+
+body[data-page="home"] .home-hero:after {
+  content: '';
+  position: absolute;
+  z-index: 1;
+  inset: auto -8vw -20vw auto;
+  width: min(48vw, 620px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: #ffd65a;
+  opacity: .18;
+  filter: blur(1px);
+}
+
+body[data-page="home"] .hero-copy {
+  z-index: 2;
+  max-width: 900px;
+  padding-bottom: clamp(90px, 11vw, 145px);
+}
+
+body[data-page="home"] .adinkra-badge {
+  background: rgba(255, 232, 159, .18);
+  border-color: rgba(255, 235, 177, .66);
+  color: #fff0b6;
+  box-shadow: none;
+}
+
+body[data-page="home"] .hero h1 {
+  max-width: 720px;
+  text-shadow: 0 3px 20px rgba(55, 13, 3, .22);
+}
+
+body[data-page="home"] .ghana-hero h1 em {
+  color: #ffdb62;
+}
+
+body[data-page="home"] .hero-intro {
+  max-width: 450px;
+  font-size: 17px;
+  color: #fff7e8;
+}
+
+body[data-page="home"] .button-gold {
+  background: #ffcf4b;
+  color: #48200f;
+  box-shadow: 0 10px 24px rgba(77, 22, 6, .22);
+}
+
+body[data-page="home"] .button-gold:hover {
+  background: #ffe184;
+}
+
+body[data-page="home"] .button-ghost {
+  border-color: rgba(255, 250, 236, .72);
+  background: rgba(255, 255, 255, .08);
+}
+
+body[data-page="home"] .ghana-hero-note {
+  z-index: 2;
+  padding: 14px 0 14px 18px;
+  border-left-color: #ffcf4b;
+  background: rgba(27, 56, 41, .66);
+  backdrop-filter: blur(8px);
+}
+
+body[data-page="home"] .home-slider-dots {
+  position: absolute;
+  z-index: 2;
+  bottom: 34px;
+  left: clamp(22px, 9vw, 130px);
+}
+
+body[data-page="home"] .home-slider-dots button {
+  background: rgba(255,255,255,.5);
+}
+
+body[data-page="home"] .home-slider-dots button.active {
+  background: #ffcf4b;
+}
+
+body[data-page="home"] .scroll-cue {
+  z-index: 2;
+}
+
+body[data-page="home"] .ghana-intro-band {
+  background: linear-gradient(120deg, #fff1c9, #fffaf0 57%, #dcf3d4);
+}
+
+body[data-page="home"] .section-kicker span:first-child,
+body[data-page="home"] .intro-grid h2 em {
+  color: #dc4a27;
+}
+
+body[data-page="home"] .ghana-feature-section {
+  background: #fffaf0;
+}
+
+body[data-page="home"] .ghana-dish-grid .dish-card {
+  padding: 12px;
+  border: 1px solid rgba(91, 42, 12, .1);
+  border-radius: 18px;
+  background: #fff;
+  box-shadow: 0 15px 34px rgba(117, 69, 18, .1);
+}
+
+body[data-page="home"] .ghana-dish-grid .dish-card:hover {
+  transform: translateY(-8px) rotate(-.3deg);
+  box-shadow: 0 22px 42px rgba(117, 69, 18, .18);
+}
+
+body[data-page="home"] .dish-image,
+body[data-page="home"] .dish-image:before {
+  border-radius: 12px;
+}
+
+body[data-page="home"] .dish-tag {
+  background: #1d553f;
+  color: #fff4cf;
+  border: 0;
+}
+
+body[data-page="home"] .ghana-card-btn {
+  border-color: #1d553f;
+  color: #1d553f;
+}
+
+body[data-page="home"] .ghana-card-btn:hover {
+  background: #1d553f;
+  border-color: #1d553f;
+}
+
+body[data-page="home"] .ghana-quote-band {
+  background: linear-gradient(120deg, #1c5a42 0%, #267354 53%, #f7b834 53%, #ffd65a 100%);
+}
+
+body[data-page="home"] .ghana-quote-band .eyebrow,
+body[data-page="home"] .ghana-quote-band blockquote em {
+  color: #ffe59a;
+}
+
+body[data-page="home"] .ghana-cta-band {
+  background: linear-gradient(110deg, #ffe58c, #f6b739 50%, #ee7950);
+}
+
+@media (max-width: 800px) {
+  body[data-page="home"] .site-header {
+    height: 76px;
+  }
+
+  body[data-page="home"] .home-hero {
+    min-height: 690px;
+  }
+
+  body[data-page="home"] .home-slider-dots {
+    bottom: 24px;
+  }
+
+  body[data-page="home"] .ghana-hero-note {
+    right: 22px;
+  }
+}

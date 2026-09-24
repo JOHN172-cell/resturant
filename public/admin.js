@@ -465,7 +465,10 @@
         const data = await response.json();
         active = data.active !== false;
       } catch (error) {
-        window.alert('The service status could not be updated. Please try again.');
+        // Keep the staff selection in this browser if the API is temporarily
+        // unavailable. When the API is available, the server remains the
+        // shared source of truth for every customer device.
+        active = nextActive;
       } finally {
         localStorage.setItem(serviceKey, String(active));
         update(active);

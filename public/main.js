@@ -490,6 +490,19 @@
               <label class="fulfillment-choice"><input type="radio" name="delivery-area" value="tema" checked><span><strong>Inside Tema</strong><small>Delivery fee: <b class="tema-delivery-fee">₵0.00</b> (+25%)</small></span></label>
               <label class="fulfillment-choice"><input type="radio" name="delivery-area" value="accra"><span><strong>Outside Tema / Accra</strong><small>Delivery fee: <b class="accra-delivery-fee">₵0.00</b> (+40%)</small></span></label>
             </div>
+            <section class="payment-options" aria-labelledby="payment-title">
+              <p class="delivery-location-title" id="payment-title">Payment</p>
+              <div class="pickup-payment-timing">
+                <label class="fulfillment-choice"><input type="radio" name="pickup-payment-timing" value="before-pickup" checked><span><strong>Pay before pickup</strong><small>Pay online now with your preferred method.</small></span></label>
+                <label class="fulfillment-choice"><input type="radio" name="pickup-payment-timing" value="on-pickup"><span><strong>Pay on pickup</strong><small>Pay when you collect your order at Taste Africa.</small></span></label>
+              </div>
+              <p class="delivery-payment-notice" hidden>Delivery orders must be paid online before they can be confirmed.</p>
+              <div class="payment-method-options">
+                <label class="fulfillment-choice"><input type="radio" name="payment-method" value="card" checked><span><strong>Card</strong><small>Debit or credit card</small></span></label>
+                <label class="fulfillment-choice"><input type="radio" name="payment-method" value="mobile-money"><span><strong>Mobile Money</strong><small>MTN MoMo or another mobile money wallet</small></span></label>
+                <label class="fulfillment-choice"><input type="radio" name="payment-method" value="telecel-cash"><span><strong>Telecel Cash</strong><small>Pay with your Telecel Cash wallet</small></span></label>
+              </div>
+            </section>
             <div class="checkout-price-row checkout-total-row"><span>Total</span><strong class="checkout-final-total">₵0.00</strong></div>
             <button class="button button-dark checkout-confirm" type="button">Confirm pickup order <span>→</span></button>
           </div>
@@ -964,10 +977,17 @@
     const selection = qs('.checkout-selection', layer);
     const success = qs('.checkout-success', layer);
     const locationOptions = qs('.delivery-location-options', layer);
+    const pickupPaymentTiming = qs('.pickup-payment-timing', layer);
+    const paymentMethodOptions = qs('.payment-method-options', layer);
+    const deliveryPaymentNotice = qs('.delivery-payment-notice', layer);
     const methodRadios = qsa('input[name="fulfillment-method"]', layer);
     const areaRadios = qsa('input[name="delivery-area"]', layer);
+    const pickupPaymentRadios = qsa('input[name="pickup-payment-timing"]', layer);
+    const paymentMethodRadios = qsa('input[name="payment-method"]', layer);
     const selectedMethod = () => qs('input[name="fulfillment-method"]:checked', layer)?.value || 'pickup';
     const selectedArea = () => qs('input[name="delivery-area"]:checked', layer)?.value || 'tema';
+    const selectedPickupPaymentTiming = () => qs('input[name="pickup-payment-timing"]:checked', layer)?.value || 'before-pickup';
+    const selectedPaymentMethod = () => qs('input[name="payment-method"]:checked', layer)?.value || 'card';
 
     function updateCheckoutTotals() {
       const foodSubtotal = subtotal();
@@ -982,10 +1002,19 @@
       qsa('.checkout-final-total', layer).forEach(element => { element.textContent = money(total); });
       if (locationOptions) locationOptions.hidden = !isDelivery;
 
+      const paymentBeforePickup = selectedPickupPaymentTiming() === 'before-pickup';
+      if (pickupPaymentTiming) pickupPaymentTiming.hidden = isDelivery;
+      if (deliveryPaymentNotice) deliveryPaymentNotice.hidden = !isDelivery;
+      if (paymentMethodOptions) paymentMethodOptions.hidden = !isDelivery && !paymentBeforePickup;
+
       const confirmButton = qs('.checkout-confirm', layer);
-      if (confirmButton) confirmButton.innerHTML = isDelivery
-        ? `Confirm delivery order <span>→</span>`
-        : `Confirm pickup order <span>→</span>`;
+      if (confirmButton) {
+        confirmButton.innerHTML = isDelivery
+          ? `Pay ${money(total)} & confirm delivery <span>→</span>`
+          : paymentBeforePickup
+            ? `Pay ${money(total)} & confirm pickup <span>→</span>`
+            : `Confirm pickup order <span>→</span>`;
+      }
     }
 
     function resetCheckout() {
@@ -993,8 +1022,12 @@
       if (success) success.hidden = true;
       const pickup = qs('input[name="fulfillment-method"][value="pickup"]', layer);
       const tema = qs('input[name="delivery-area"][value="tema"]', layer);
+      const beforePickup = qs('input[name="pickup-payment-timing"][value="before-pickup"]', layer);
+      const card = qs('input[name="payment-method"][value="card"]', layer);
       if (pickup) pickup.checked = true;
       if (tema) tema.checked = true;
+      if (beforePickup) beforePickup.checked = true;
+      if (card) card.checked = true;
       updateCheckoutTotals();
     }
 
@@ -1009,6 +1042,8 @@
 
     methodRadios.forEach(radio => radio.addEventListener('change', updateCheckoutTotals));
     areaRadios.forEach(radio => radio.addEventListener('change', updateCheckoutTotals));
+    pickupPaymentRadios.forEach(radio => radio.addEventListener('change', updateCheckoutTotals));
+    paymentMethodRadios.forEach(radio => radio.addEventListener('change', updateCheckoutTotals));
 
     qs('.checkout-close', layer)?.addEventListener('click', () => {
       layer.classList.remove('open');
@@ -1024,11 +1059,14 @@
       const feeRate = method === 'delivery' ? (area === 'accra' ? 0.40 : 0.25) : 0;
       const deliveryFee = foodSubtotal * feeRate;
       const total = foodSubtotal + deliveryFee;
+      const paymentTiming = method === 'delivery' ? 'before-delivery' : selectedPickupPaymentTiming();
+      const paymentMethod = paymentTiming === 'on-pickup' ? null : selectedPaymentMethod();
       const orderData = {
         id: `order-${Date.now()}`,
         createdAt: new Date().toISOString(),
         items: cart,
         fulfillment: { method, area, feeRate, deliveryFee },
+        payment: { timing: paymentTiming, method: paymentMethod },
         subtotal: foodSubtotal,
         total,
         status: 'new'
@@ -1049,8 +1087,10 @@
       if (success) success.hidden = false;
       const successCopy = qs('.checkout-success-copy', layer);
       if (successCopy) successCopy.textContent = method === 'delivery'
-        ? `Your ${area === 'accra' ? 'Outside Tema / Accra' : 'Inside Tema'} delivery order is on its way to the kitchen.`
-        : 'Your pickup order is on its way to the kitchen. We’ll see you at Taste Africa.';
+        ? `Your ${area === 'accra' ? 'Outside Tema / Accra' : 'Inside Tema'} delivery order has been received and paid before delivery.`
+        : paymentTiming === 'on-pickup'
+          ? 'Your pickup order is on its way to the kitchen. Pay when you collect it at Taste Africa.'
+          : 'Your pickup order has been received and paid. We’ll see you at Taste Africa.';
     });
 
     qs('.checkout-done', layer)?.addEventListener('click', () => {

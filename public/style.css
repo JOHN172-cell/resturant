@@ -1785,7 +1785,9 @@
  }
 
  .fulfillment-options,
- .delivery-location-options {
+ .delivery-location-options,
+ .pickup-payment-timing,
+ .payment-method-options {
    display: grid;
    gap: 9px;
    margin: 16px 0
@@ -1794,6 +1796,34 @@
  .delivery-location-options {
    padding-top: 5px;
    border-top: 1px solid rgba(26, 10, 0, .22)
+ }
+
+ .payment-options {
+   margin: 16px 0;
+   padding-top: 5px;
+   border-top: 1px solid rgba(26, 10, 0, .22)
+ }
+
+ .payment-options .delivery-location-title {
+   margin-top: 9px
+ }
+
+ .payment-method-options {
+   margin-top: 9px
+ }
+
+ .delivery-payment-notice {
+   margin: 12px 0 9px;
+   padding: 10px 12px;
+   background: rgba(196, 57, 32, .1);
+   color: var(--tomato);
+   font: 10px/1.45 var(--mono)
+ }
+
+ .pickup-payment-timing[hidden],
+ .payment-method-options[hidden],
+ .delivery-payment-notice[hidden] {
+   display: none
  }
 
  .delivery-location-title {

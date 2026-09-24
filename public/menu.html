@@ -160,6 +160,19 @@
           <label class="fulfillment-choice"><input type="radio" name="delivery-area" value="tema" checked><span><strong>Inside Tema</strong><small>Delivery fee: <b class="tema-delivery-fee">₵0.00</b> (+25%)</small></span></label>
           <label class="fulfillment-choice"><input type="radio" name="delivery-area" value="accra"><span><strong>Outside Tema / Accra</strong><small>Delivery fee: <b class="accra-delivery-fee">₵0.00</b> (+40%)</small></span></label>
         </div>
+        <section class="payment-options" aria-labelledby="payment-title">
+          <p class="delivery-location-title" id="payment-title">Payment</p>
+          <div class="pickup-payment-timing">
+            <label class="fulfillment-choice"><input type="radio" name="pickup-payment-timing" value="before-pickup" checked><span><strong>Pay before pickup</strong><small>Pay online now with your preferred method.</small></span></label>
+            <label class="fulfillment-choice"><input type="radio" name="pickup-payment-timing" value="on-pickup"><span><strong>Pay on pickup</strong><small>Pay when you collect your order at Taste Africa.</small></span></label>
+          </div>
+          <p class="delivery-payment-notice" hidden>Delivery orders must be paid online before they can be confirmed.</p>
+          <div class="payment-method-options">
+            <label class="fulfillment-choice"><input type="radio" name="payment-method" value="card" checked><span><strong>Card</strong><small>Debit or credit card</small></span></label>
+            <label class="fulfillment-choice"><input type="radio" name="payment-method" value="mobile-money"><span><strong>Mobile Money</strong><small>MTN MoMo or another mobile money wallet</small></span></label>
+            <label class="fulfillment-choice"><input type="radio" name="payment-method" value="telecel-cash"><span><strong>Telecel Cash</strong><small>Pay with your Telecel Cash wallet</small></span></label>
+          </div>
+        </section>
         <div class="checkout-price-row checkout-total-row"><span>Total</span><strong class="checkout-final-total">₵0.00</strong></div>
         <button class="button button-dark checkout-confirm" type="button">Confirm pickup order <span>→</span></button>
       </div>

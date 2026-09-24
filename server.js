@@ -133,6 +133,11 @@ app.get('/api/orders', (req, res) => {
 // POST New Order
 app.post('/api/orders', (req, res) => {
   const db = readDB();
+  const isDelivery = req.body?.fulfillment?.method === 'delivery';
+  const payment = req.body?.payment;
+  if (isDelivery && (!payment?.method || payment.timing !== 'before-delivery')) {
+    return res.status(400).json({ error: 'Delivery orders require payment before confirmation.' });
+  }
   const newOrder = {
     id: `order-${Date.now()}`,
     createdAt: new Date().toISOString(),

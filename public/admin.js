@@ -372,7 +372,7 @@
         option.hidden = isDrink;
       });
 
-      const validFoodStyle = ['Continental', 'Fast food', 'Local dish'].includes(styleField.value);
+      const validFoodStyle = ['Continental', 'Local dish'].includes(styleField.value);
       const validDrinkStyle = qsa('[data-drink-style]', styleField).some(option => option.value === styleField.value);
 
       if ((isDrink && !validDrinkStyle) || (!isDrink && !validFoodStyle)) {

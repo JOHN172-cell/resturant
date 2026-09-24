@@ -1194,17 +1194,16 @@
     const reservationForm = qs('#reservation-form');
     reservationForm?.addEventListener('submit', event => {
       event.preventDefault();
-      if (!reservationForm.checkValidity()) { showMessage(reservationForm, 'Please fill in each required field.'); reservationForm.reportValidity(); return; }
+      if (!reservationForm.checkValidity()) { showMessage(reservationForm, 'Please fill in each required field, including your phone number.'); reservationForm.reportValidity(); return; }
       const data = new FormData(reservationForm);
       const name = data.get('name');
       const email = data.get('email');
+      const phone = data.get('phone');
       const date = data.get('date');
       const time = data.get('time');
       const party = data.get('party');
       const allergies = data.get('allergies') ? String(data.get('allergies')).trim() : '';
       const occasion = data.get('occasion') ? String(data.get('occasion')).trim() : '';
-      const phone = '+233 503658302';
-
       const notesArr = [];
       if (allergies) notesArr.push(`Allergies: ${allergies}`);
       if (occasion) notesArr.push(`Occasion: ${occasion}`);

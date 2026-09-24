@@ -164,6 +164,29 @@
     applyMenuFilters();
   }
 
+  function renderHomepageMenuHighlights() {
+    const grid = qs('#featured-menu-grid');
+    if (!grid) return;
+
+    const menuItems = loadMenuItems().slice(0, 3);
+    grid.innerHTML = menuItems.map((item, index) => {
+      const layoutClass = index === 0 ? ' dish-card-tall' : (index === 2 ? ' dish-card-offset' : '');
+      const number = String(index + 1).padStart(2, '0');
+      return `
+        <article class="dish-card${layoutClass}" data-id="${item.id}" data-name="${item.name}" data-price="${item.price}" data-category="${item.category}" data-description="${item.description || item.name}">
+          <div class="dish-image"${item.image ? ` style="background-image:url('${item.image}')"` : ''}>
+            <span class="dish-tag">${item.category}</span>
+          </div>
+          <div class="dish-meta">
+            <span>${number} / ${item.cuisine} • ${money(item.price)}</span>
+            <h3>${item.name}</h3>
+            <p>${item.description || 'Freshly prepared by our kitchen.'}</p>
+            <button type="button" class="order-now-btn add-button ghana-card-btn">Order now <span>+</span></button>
+          </div>
+        </article>`;
+    }).join('');
+  }
+
   function applyMenuAvailability() {
     const availability = JSON.parse(localStorage.getItem('velvet-plate-availability') || '{}');
     const menuData = JSON.parse(localStorage.getItem('velvet-plate-menu-data') || '[]');
@@ -1172,6 +1195,7 @@
   setupNavigation();
   setupStaffAccess();
   renderDynamicMenu();
+  renderHomepageMenuHighlights();
   setupMenuInteractiveFilters();
   applyMenuAvailability();
   setupCustomization();
@@ -1197,6 +1221,7 @@
 
   window.addEventListener('menu:updated', () => {
     renderDynamicMenu();
+    renderHomepageMenuHighlights();
     applyMenuAvailability();
     setupCustomization();
   });

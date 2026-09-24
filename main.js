@@ -272,6 +272,14 @@
           themeClass: 'modal-type-drink',
           buttonText: 'Add Beverage to Order',
           isDrink: true,
+          sizeSelector: {
+            heading: 'Local Drink & Juice Size',
+            options: [
+              { label: 'Small', multiplier: 1, selected: true },
+              { label: 'Large', multiplier: 1.15 },
+              { label: 'Extra Large', multiplier: 1.3 }
+            ]
+          },
           primary: {
             name: 'ice',
             heading: 'Ice Preference',
@@ -394,7 +402,14 @@
           badgeIcon: '🥗',
           themeClass: 'modal-type-starter',
           buttonText: 'Add Starter to Order',
-          hasPortionSelector: true,
+          sizeSelector: {
+            heading: 'Plate or Bowl Size',
+            options: [
+              { label: 'Small Plate', multiplier: 1, selected: true },
+              { label: 'Large Plate', multiplier: 1.15 },
+              { label: 'Extra-Large Bowl', multiplier: 1.3 }
+            ]
+          },
           primary: {
             name: 'dressing',
             heading: 'Serving & Dressing Style',
@@ -586,35 +601,23 @@
 
     let html = '';
 
-    // Drink Specific: Serving Unit & Quantity Stepper (Glasses vs Bottles)
-    if (schema.isDrink) {
+    // Drinks use local-drink and juice sizes; starters use plate and bowl sizes.
+    if (schema.sizeSelector) {
       const basePrice = Number(dish.price) || 18;
-      const bottlePrice = (basePrice * 3.2).toFixed(2);
 
       html += `
-        <div class="custom-option-section drink-serving-section">
+        <div class="custom-option-section menu-size-section">
           <div class="option-heading-styled">
             <span class="opt-num">01</span>
-            <strong>Choose Serving Unit & Count</strong>
+            <strong>${schema.sizeSelector.heading}</strong>
           </div>
-          <div class="custom-pill-group drink-unit-pills">
-            <label class="custom-pill-label">
-              <input type="radio" name="drink-serving-unit" value="glass" checked data-multiplier="1.0" data-unit="Glass" data-plural="Glasses">
-              <span class="pill-btn">By the Glass 🥂 <span class="pill-cost">₵${basePrice.toFixed(2)}</span></span>
-            </label>
-            <label class="custom-pill-label">
-              <input type="radio" name="drink-serving-unit" value="bottle" data-multiplier="3.2" data-unit="Bottle" data-plural="Bottles">
-              <span class="pill-btn">Full Bottle 🍾 <span class="pill-cost">₵${bottlePrice}</span></span>
-            </label>
-          </div>
-          <div class="drink-quantity-stepper">
-            <span class="stepper-label">Number of <strong id="drink-unit-name-display">Glasses</strong>:</span>
-            <div class="stepper-controls">
-              <button type="button" class="stepper-btn" id="drink-qty-minus" aria-label="Decrease count">−</button>
-              <input type="number" id="drink-serving-count" value="1" min="1" max="20" readonly>
-              <button type="button" class="stepper-btn" id="drink-qty-plus" aria-label="Increase count">+</button>
-            </div>
-            <span class="stepper-subtotal" id="drink-calculated-total">Total: ₵${basePrice.toFixed(2)}</span>
+          <div class="custom-pill-group menu-size-pills">
+            ${schema.sizeSelector.options.map((size, index) => `
+              <label class="custom-pill-label">
+                <input type="radio" name="menu-size" value="${size.label}" data-multiplier="${size.multiplier}" ${(size.selected || (!schema.sizeSelector.options.some(option => option.selected) && index === 0)) ? 'checked' : ''}>
+                <span class="pill-btn">${size.label} <span class="pill-cost">₵${(basePrice * size.multiplier).toFixed(2)}</span></span>
+              </label>
+            `).join('')}
           </div>
         </div>
       `;
@@ -643,7 +646,7 @@
 
     // Primary Radio Option Group
     if (schema.primary) {
-      const stepNum = schema.isDrink ? '02' : (schema.hasPortionSelector ? '02' : '01');
+      const stepNum = schema.sizeSelector ? '02' : (schema.hasPortionSelector ? '02' : '01');
       html += `
         <div class="custom-option-section">
           <div class="option-heading-styled">
@@ -664,7 +667,7 @@
 
     // Secondary Radio Option Group
     if (schema.secondary) {
-      const stepNum = schema.isDrink ? '03' : (schema.hasPortionSelector ? '03' : '02');
+      const stepNum = schema.sizeSelector ? '03' : (schema.hasPortionSelector ? '03' : '02');
       html += `
         <div class="custom-option-section">
           <div class="option-heading-styled">
@@ -685,7 +688,7 @@
 
     // Extras Checkbox Group
     if (schema.extras && schema.extras.length) {
-      const stepNum = schema.isDrink ? '04' : (schema.hasPortionSelector ? '04' : '03');
+      const stepNum = schema.sizeSelector ? '04' : (schema.hasPortionSelector ? '04' : '03');
       html += `
         <div class="custom-option-section">
           <div class="option-heading-styled">
@@ -718,48 +721,28 @@
 
     optionsContainer.innerHTML = html;
 
-    // Attach Interactive Drink Stepper & Live Price Calculations
-    if (schema.isDrink) {
+    // Update the displayed price whenever a drink or starter size is changed.
+    if (schema.sizeSelector) {
       const basePrice = Number(dish.price) || 18;
-      const unitRadios = qsa('input[name="drink-serving-unit"]');
-      const countInput = qs('#drink-serving-count');
-      const minusBtn = qs('#drink-qty-minus');
-      const plusBtn = qs('#drink-qty-plus');
-      const unitDisplay = qs('#drink-unit-name-display');
-      const subtotalEl = qs('#drink-calculated-total');
+      const sizeRadios = qsa('input[name="menu-size"]');
 
-      function updateDrinkCalculations() {
-        const selectedRadio = qs('input[name="drink-serving-unit"]:checked');
+      function updateSizeCalculations() {
+        const selectedRadio = qs('input[name="menu-size"]:checked');
         const multiplier = Number(selectedRadio?.dataset.multiplier || 1.0);
-        const unitPlural = selectedRadio?.dataset.plural || 'Glasses';
-        const count = Math.max(1, Number(countInput?.value || 1));
-
-        if (unitDisplay) unitDisplay.textContent = unitPlural;
 
         let extraCost = 0;
         qsa('input[name="modal-extra-opt"]:checked').forEach(chk => {
           extraCost += Number(chk.dataset.cost || 0);
         });
 
-        const singleUnitPrice = basePrice * multiplier;
-        const total = (singleUnitPrice * count) + extraCost;
-
-        if (subtotalEl) subtotalEl.textContent = `Total: ₵${total.toFixed(2)}`;
+        const total = (basePrice * multiplier) + extraCost;
         if (titleEl) {
           titleEl.innerHTML = `${dish.name} <span style="font-size:22px; color:var(--tomato); margin-left:12px; font-weight:700;">₵${total.toFixed(2)}</span>`;
         }
       }
 
-      unitRadios.forEach(r => r.addEventListener('change', updateDrinkCalculations));
-      minusBtn?.addEventListener('click', () => {
-        let val = Number(countInput.value || 1);
-        if (val > 1) { countInput.value = val - 1; updateDrinkCalculations(); }
-      });
-      plusBtn?.addEventListener('click', () => {
-        let val = Number(countInput.value || 1);
-        if (val < 20) { countInput.value = val + 1; updateDrinkCalculations(); }
-      });
-      qsa('input[name="modal-extra-opt"]').forEach(chk => chk.addEventListener('change', updateDrinkCalculations));
+      sizeRadios.forEach(r => r.addEventListener('change', updateSizeCalculations));
+      qsa('input[name="modal-extra-opt"]').forEach(chk => chk.addEventListener('change', updateSizeCalculations));
     }
 
     if (schema.hasPortionSelector) {
@@ -811,19 +794,13 @@
     let itemPrice = selectedDish.price + extraCost;
     const parts = [];
 
-    if (schema.isDrink) {
-      const selectedUnitRadio = qs('input[name="drink-serving-unit"]:checked');
-      const unitType = selectedUnitRadio?.value || 'glass';
-      const multiplier = Number(selectedUnitRadio?.dataset.multiplier || 1.0);
-      const drinkCount = Math.max(1, Number(qs('#drink-serving-count')?.value || 1));
+    if (schema.sizeSelector) {
+      const selectedSizeRadio = qs('input[name="menu-size"]:checked');
+      const sizeName = selectedSizeRadio?.value || 'Large';
+      const multiplier = Number(selectedSizeRadio?.dataset.multiplier || 1.0);
 
-      const unitName = unitType === 'bottle' 
-        ? (drinkCount > 1 ? `${drinkCount} Bottles (750ml)` : '1 Bottle (750ml)') 
-        : (drinkCount > 1 ? `${drinkCount} Glasses` : '1 Glass');
-
-      parts.push(`Portion: ${unitName}`);
+      parts.push(`Size: ${sizeName}`);
       itemPrice = (selectedDish.price * multiplier) + extraCost;
-      itemQuantity = drinkCount;
     }
 
     if (schema.hasPortionSelector) {

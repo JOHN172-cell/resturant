@@ -135,8 +135,15 @@ app.post('/api/orders', (req, res) => {
   const db = readDB();
   const isDelivery = req.body?.fulfillment?.method === 'delivery';
   const payment = req.body?.payment;
+  const customer = req.body?.customer;
+  if (!customer?.name || !customer?.phone) {
+    return res.status(400).json({ error: 'Customer name and phone number are required.' });
+  }
   if (isDelivery && (!payment?.method || payment.timing !== 'before-delivery')) {
     return res.status(400).json({ error: 'Delivery orders require payment before confirmation.' });
+  }
+  if (isDelivery && (!customer.email || !customer.address)) {
+    return res.status(400).json({ error: 'Delivery orders require an email address and delivery location.' });
   }
   const newOrder = {
     id: `order-${Date.now()}`,

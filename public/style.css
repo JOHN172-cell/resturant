@@ -1897,8 +1897,80 @@
  }
 
  .checkout-success[hidden],
- .checkout-selection[hidden] {
+ .checkout-selection[hidden],
+ .checkout-contact[hidden],
+ .delivery-contact-fields[hidden],
+ .delivery-map[hidden] {
    display: none
+ }
+
+ .checkout-contact {
+   text-align: left
+ }
+
+ .checkout-contact h2 {
+   font-size: 38px;
+   line-height: 1.02;
+   margin: 12px 0
+ }
+
+ .checkout-contact-copy {
+   margin: 0 0 20px;
+   font-size: 14px;
+   line-height: 1.5
+ }
+
+ .checkout-back {
+   border: 0;
+   background: none;
+   padding: 0;
+   margin-bottom: 18px;
+   color: var(--tomato);
+   cursor: pointer;
+   font: 10px var(--mono);
+   letter-spacing: .05em;
+   text-transform: uppercase
+ }
+
+ .checkout-contact-form,
+ .delivery-contact-fields {
+   display: grid;
+   gap: 14px
+ }
+
+ .checkout-field {
+   display: grid;
+   gap: 7px;
+   font: 10px var(--mono);
+   letter-spacing: .05em;
+   text-transform: uppercase
+ }
+
+ .checkout-field input {
+   width: 100%;
+   box-sizing: border-box;
+   padding: 12px;
+   border: 1px solid rgba(26, 10, 0, .34);
+   border-radius: 0;
+   background: rgba(255, 255, 255, .45);
+   color: var(--ink);
+   font: 14px var(--body)
+ }
+
+ .delivery-map {
+   height: 190px;
+   border: 1px solid rgba(26, 10, 0, .34)
+ }
+
+ .delivery-map-frame {
+   width: 100%;
+   height: 100%;
+   border: 0
+ }
+
+ .checkout-place-order {
+   width: 100%;
+   margin-top: 8px
  }
 
  /* Show the final confirmation button after the checkout choices. */

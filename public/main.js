@@ -506,6 +506,24 @@
             <div class="checkout-price-row checkout-total-row"><span>Total</span><strong class="checkout-final-total">₵0.00</strong></div>
             <button class="button button-dark checkout-confirm" type="button">Confirm pickup order <span>→</span></button>
           </div>
+          <div class="checkout-contact" hidden>
+            <button class="checkout-back" type="button">← Back to checkout</button>
+            <p class="eyebrow">Contact details</p>
+            <h2 class="checkout-contact-title">Who is collecting this order?</h2>
+            <p class="checkout-contact-copy">We’ll use these details if we need to reach you about your order.</p>
+            <form class="checkout-contact-form">
+              <label class="checkout-field">Full name<input name="customer-name" type="text" autocomplete="name" required></label>
+              <label class="checkout-field">Phone number<input name="customer-phone" type="tel" autocomplete="tel" required></label>
+              <div class="delivery-contact-fields" hidden>
+                <label class="checkout-field">Email address<input name="customer-email" type="email" autocomplete="email"></label>
+                <label class="checkout-field">Delivery location<input name="delivery-address" type="text" autocomplete="street-address" placeholder="Enter your address or landmark"></label>
+                <div class="delivery-map" hidden>
+                  <iframe class="delivery-map-frame" title="Delivery location on Google Maps" loading="lazy"></iframe>
+                </div>
+              </div>
+              <button class="button button-dark checkout-place-order" type="submit">Place order <span>→</span></button>
+            </form>
+          </div>
           <div class="checkout-success" hidden>
             <span class="success-symbol">✓</span>
             <p class="eyebrow">Order received</p>
@@ -975,6 +993,7 @@
 
     const subtotal = () => cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
     const selection = qs('.checkout-selection', layer);
+    const contact = qs('.checkout-contact', layer);
     const success = qs('.checkout-success', layer);
     const locationOptions = qs('.delivery-location-options', layer);
     const pickupPaymentTiming = qs('.pickup-payment-timing', layer);
@@ -988,6 +1007,40 @@
     const selectedArea = () => qs('input[name="delivery-area"]:checked', layer)?.value || 'tema';
     const selectedPickupPaymentTiming = () => qs('input[name="pickup-payment-timing"]:checked', layer)?.value || 'before-pickup';
     const selectedPaymentMethod = () => qs('input[name="payment-method"]:checked', layer)?.value || 'card';
+    const contactForm = qs('.checkout-contact-form', layer);
+    const deliveryContactFields = qs('.delivery-contact-fields', layer);
+    const emailInput = qs('input[name="customer-email"]', layer);
+    const addressInput = qs('input[name="delivery-address"]', layer);
+    const map = qs('.delivery-map', layer);
+    const mapFrame = qs('.delivery-map-frame', layer);
+
+    function updateDeliveryMap() {
+      const address = addressInput?.value.trim();
+      if (map) map.hidden = !address;
+      if (address && mapFrame) {
+        mapFrame.src = `https://www.google.com/maps?q=${encodeURIComponent(address)}&output=embed`;
+      }
+    }
+
+    function showContactStep() {
+      const isDelivery = selectedMethod() === 'delivery';
+      const contactTitle = qs('.checkout-contact-title', layer);
+      const contactCopy = qs('.checkout-contact-copy', layer);
+      const placeOrderButton = qs('.checkout-place-order', layer);
+      if (selection) selection.hidden = true;
+      if (contact) contact.hidden = false;
+      if (deliveryContactFields) deliveryContactFields.hidden = !isDelivery;
+      if (emailInput) emailInput.required = isDelivery;
+      if (addressInput) addressInput.required = isDelivery;
+      if (contactTitle) contactTitle.textContent = isDelivery ? 'Where should we deliver?' : 'Who is collecting this order?';
+      if (contactCopy) contactCopy.textContent = isDelivery
+        ? 'Add your contact details and delivery location before placing your prepaid order.'
+        : 'We’ll use these details if we need to reach you about your order.';
+      if (placeOrderButton) placeOrderButton.innerHTML = isDelivery
+        ? `Place prepaid delivery order <span>→</span>`
+        : `Place pickup order <span>→</span>`;
+      updateDeliveryMap();
+    }
 
     function updateCheckoutTotals() {
       const foodSubtotal = subtotal();
@@ -1019,7 +1072,9 @@
 
     function resetCheckout() {
       if (selection) selection.hidden = false;
+      if (contact) contact.hidden = true;
       if (success) success.hidden = true;
+      contactForm?.reset();
       const pickup = qs('input[name="fulfillment-method"][value="pickup"]', layer);
       const tema = qs('input[name="delivery-area"][value="tema"]', layer);
       const beforePickup = qs('input[name="pickup-payment-timing"][value="before-pickup"]', layer);
@@ -1053,6 +1108,19 @@
 
     qs('.checkout-confirm', layer)?.addEventListener('click', () => {
       if (!cart.length) return;
+      showContactStep();
+    });
+
+    qs('.checkout-back', layer)?.addEventListener('click', () => {
+      if (contact) contact.hidden = true;
+      if (selection) selection.hidden = false;
+    });
+
+    addressInput?.addEventListener('input', updateDeliveryMap);
+
+    contactForm?.addEventListener('submit', event => {
+      event.preventDefault();
+      if (!cart.length) return;
       const foodSubtotal = subtotal();
       const method = selectedMethod();
       const area = method === 'delivery' ? selectedArea() : null;
@@ -1067,6 +1135,12 @@
         items: cart,
         fulfillment: { method, area, feeRate, deliveryFee },
         payment: { timing: paymentTiming, method: paymentMethod },
+        customer: {
+          name: qs('input[name="customer-name"]', layer)?.value.trim(),
+          phone: qs('input[name="customer-phone"]', layer)?.value.trim(),
+          email: method === 'delivery' ? emailInput?.value.trim() : null,
+          address: method === 'delivery' ? addressInput?.value.trim() : null
+        },
         subtotal: foodSubtotal,
         total,
         status: 'new'
@@ -1084,6 +1158,7 @@
       cart = [];
       saveCart();
       if (selection) selection.hidden = true;
+      if (contact) contact.hidden = true;
       if (success) success.hidden = false;
       const successCopy = qs('.checkout-success-copy', layer);
       if (successCopy) successCopy.textContent = method === 'delivery'

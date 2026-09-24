@@ -499,7 +499,7 @@
               <label class="checkout-field">Full name<input name="customer-name" type="text" autocomplete="name" required></label>
               <label class="checkout-field">Phone number<input name="customer-phone" type="tel" autocomplete="tel" required></label>
               <div class="delivery-contact-fields" hidden>
-                <label class="checkout-field">Email address<input name="customer-email" type="email" autocomplete="email"></label>
+                <label class="checkout-field">Email address (Optional)<input name="customer-email" type="email" autocomplete="email"></label>
                 <label class="checkout-field">Delivery location<input name="delivery-address" type="text" autocomplete="street-address" placeholder="Enter your address or landmark"></label>
                 <div class="delivery-map" hidden>
                   <iframe class="delivery-map-frame" title="Delivery location on Google Maps" loading="lazy"></iframe>
@@ -1014,7 +1014,7 @@
       if (selection) selection.hidden = true;
       if (contact) contact.hidden = false;
       if (deliveryContactFields) deliveryContactFields.hidden = !isDelivery;
-      if (emailInput) emailInput.required = isDelivery;
+      if (emailInput) emailInput.required = false;
       if (addressInput) addressInput.required = isDelivery;
       if (contactTitle) contactTitle.textContent = isDelivery ? 'Where should we deliver?' : 'Who is collecting this order?';
       if (contactCopy) contactCopy.textContent = isDelivery
@@ -1239,7 +1239,7 @@
     const contactForm = qs('#contact-form');
     contactForm?.addEventListener('submit', event => {
       event.preventDefault();
-      if (!contactForm.checkValidity()) { showMessage(contactForm, 'Please add your name, email, and message.'); contactForm.reportValidity(); return; }
+      if (!contactForm.checkValidity()) { showMessage(contactForm, 'Please add your name and message.'); contactForm.reportValidity(); return; }
       showMessage(contactForm, 'Message sent. We’ll get back to you soon.', true);
       contactForm.reset();
     });

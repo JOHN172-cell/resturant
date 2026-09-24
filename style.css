@@ -8,6 +8,76 @@
 /* Keep the final confirmation button reachable on short screens. */
 .checkout-modal{background:rgba(250,246,239,.84);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border:1px solid rgba(255,255,255,.45);max-height:calc(100dvh - 36px);overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}.checkout-confirm{position:sticky;bottom:0;box-shadow:0 -10px 20px rgba(250,246,239,.72)}@media(max-width:500px){.checkout-modal{padding:42px 22px 28px}.checkout-selection h2{font-size:32px}.checkout-confirm{margin-top:16px}}
 
+/* Dark-mode contrast safeguards.
+   Several branded sections use the shared paper/ink tokens as foreground
+   colours. Those tokens reverse in dark mode, so these surfaces need their
+   own readable foreground colours instead of inheriting the reversed token. */
+html[data-theme="dark"] {
+  color-scheme: dark;
+  --on-dark: #f8f5ee;
+  --on-accent: #1a0a00;
+  --muted-on-dark: rgba(248, 245, 238, 0.78);
+}
+
+[data-theme="dark"] .hero,
+[data-theme="dark"] .announcement,
+[data-theme="dark"] .site-footer {
+  background-color: #11110f;
+  color: var(--on-dark);
+}
+
+[data-theme="dark"] .hero-copy,
+[data-theme="dark"] .hero-note,
+[data-theme="dark"] .scroll-cue,
+[data-theme="dark"] .hero-intro,
+[data-theme="dark"] .button-ghost,
+[data-theme="dark"] .reservation-hero h1,
+[data-theme="dark"] .contact-hero h1 {
+  color: var(--on-dark);
+}
+
+[data-theme="dark"] .quote-band {
+  color: var(--on-dark);
+}
+
+[data-theme="dark"] .quote-band .eyebrow,
+[data-theme="dark"] .cta-band,
+[data-theme="dark"] .cta-band h2,
+[data-theme="dark"] .contact-form-section,
+[data-theme="dark"] .contact-form-section h2,
+[data-theme="dark"] .checkout-modal,
+[data-theme="dark"] .checkout-modal .modal-close,
+[data-theme="dark"] .checkout-modal .eyebrow {
+  color: var(--on-accent);
+}
+
+[data-theme="dark"] .map-pin {
+  color: var(--on-dark);
+}
+
+[data-theme="dark"] .button-dark {
+  background: #2a2925;
+  color: var(--on-dark);
+}
+
+/* Native form controls and placeholders do not reliably inherit color on all browsers. */
+[data-theme="dark"] input,
+[data-theme="dark"] textarea,
+[data-theme="dark"] select {
+  color: var(--ink);
+}
+
+[data-theme="dark"] input::placeholder,
+[data-theme="dark"] textarea::placeholder {
+  color: var(--muted-on-dark);
+  opacity: 1;
+}
+
+[data-theme="dark"] select option {
+  background: #181816;
+  color: var(--on-dark);
+}
+
 
 /* --- Reservation Page Overlay & Glassmorphism Styling --- */
 .reservation-page-wrapper {

@@ -449,6 +449,39 @@
     }
   }
 
+  function checkoutLayerMarkup() {
+    return `
+      <div class="checkout-layer" aria-hidden="true">
+        <section class="checkout-modal" role="dialog" aria-modal="true" aria-labelledby="checkout-title">
+          <button class="modal-close checkout-close" type="button" aria-label="Close checkout">×</button>
+          <div class="checkout-selection">
+            <p class="eyebrow">Checkout</p>
+            <h2 id="checkout-title">How would you like your order?</h2>
+            <div class="checkout-price-row"><span>Food subtotal</span><strong class="checkout-subtotal">₵0.00</strong></div>
+            <div class="fulfillment-options">
+              <label class="fulfillment-choice"><input type="radio" name="fulfillment-method" value="pickup" checked><span><strong>Pickup</strong><small>Collect at Taste Africa · No extra fee</small></span></label>
+              <label class="fulfillment-choice"><input type="radio" name="fulfillment-method" value="delivery"><span><strong>Delivery</strong><small>Choose your delivery area and see the final price</small></span></label>
+            </div>
+            <div class="delivery-location-options" hidden>
+              <p class="delivery-location-title">Delivery area</p>
+              <label class="fulfillment-choice"><input type="radio" name="delivery-area" value="tema" checked><span><strong>Inside Tema</strong><small>Delivery fee: <b class="tema-delivery-fee">₵0.00</b> (+25%)</small></span></label>
+              <label class="fulfillment-choice"><input type="radio" name="delivery-area" value="accra"><span><strong>Outside Tema / Accra</strong><small>Delivery fee: <b class="accra-delivery-fee">₵0.00</b> (+40%)</small></span></label>
+            </div>
+            <div class="checkout-price-row checkout-total-row"><span>Total</span><strong class="checkout-final-total">₵0.00</strong></div>
+            <button class="button button-dark checkout-confirm" type="button">Confirm pickup order <span>→</span></button>
+          </div>
+          <div class="checkout-success" hidden>
+            <span class="success-symbol">✓</span>
+            <p class="eyebrow">Order received</p>
+            <h2>That’s dinner sorted.</h2>
+            <p class="checkout-success-copy">Your order is on its way to the kitchen. We’ll see you at Taste Africa.</p>
+            <button class="button button-dark checkout-done" type="button">Back to the menu <span>↗</span></button>
+          </div>
+        </section>
+      </div>
+    `;
+  }
+
   function ensureModalDOM() {
     if (qs('.modal-layer')) return;
     const modalHtml = `
@@ -469,16 +502,7 @@
           </div>
         </section>
       </div>
-      <div class="checkout-layer" aria-hidden="true">
-        <section class="checkout-modal" role="dialog" aria-modal="true">
-          <button class="modal-close checkout-close" type="button" aria-label="Close checkout">×</button>
-          <span class="success-symbol">✓</span>
-          <p class="eyebrow">Order received</p>
-          <h2>That’s dinner sorted.</h2>
-          <p>Your order is on its way to the kitchen. We’ll see you at Taste Africa.</p>
-          <button class="button button-dark checkout-done" type="button">Back to the menu <span>↗</span></button>
-        </section>
-      </div>
+      ${checkoutLayerMarkup()}
     `;
     document.body.insertAdjacentHTML('beforeend', modalHtml);
     setupCheckout();
@@ -909,36 +933,108 @@
   }
 
   function setupCheckout() {
+    const layer = qs('.checkout-layer');
+    if (!layer || layer.dataset.checkoutReady === 'true') return;
+    layer.dataset.checkoutReady = 'true';
+
+    const subtotal = () => cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+    const selection = qs('.checkout-selection', layer);
+    const success = qs('.checkout-success', layer);
+    const locationOptions = qs('.delivery-location-options', layer);
+    const methodRadios = qsa('input[name="fulfillment-method"]', layer);
+    const areaRadios = qsa('input[name="delivery-area"]', layer);
+    const selectedMethod = () => qs('input[name="fulfillment-method"]:checked', layer)?.value || 'pickup';
+    const selectedArea = () => qs('input[name="delivery-area"]:checked', layer)?.value || 'tema';
+
+    function updateCheckoutTotals() {
+      const foodSubtotal = subtotal();
+      const isDelivery = selectedMethod() === 'delivery';
+      const feeRate = !isDelivery ? 0 : (selectedArea() === 'accra' ? 0.40 : 0.25);
+      const fee = foodSubtotal * feeRate;
+      const total = foodSubtotal + fee;
+
+      qsa('.checkout-subtotal', layer).forEach(element => { element.textContent = money(foodSubtotal); });
+      qsa('.tema-delivery-fee', layer).forEach(element => { element.textContent = money(foodSubtotal * 0.25); });
+      qsa('.accra-delivery-fee', layer).forEach(element => { element.textContent = money(foodSubtotal * 0.40); });
+      qsa('.checkout-final-total', layer).forEach(element => { element.textContent = money(total); });
+      if (locationOptions) locationOptions.hidden = !isDelivery;
+
+      const confirmButton = qs('.checkout-confirm', layer);
+      if (confirmButton) confirmButton.innerHTML = isDelivery
+        ? `Confirm delivery order <span>→</span>`
+        : `Confirm pickup order <span>→</span>`;
+    }
+
+    function resetCheckout() {
+      if (selection) selection.hidden = false;
+      if (success) success.hidden = true;
+      const pickup = qs('input[name="fulfillment-method"][value="pickup"]', layer);
+      const tema = qs('input[name="delivery-area"][value="tema"]', layer);
+      if (pickup) pickup.checked = true;
+      if (tema) tema.checked = true;
+      updateCheckoutTotals();
+    }
+
     qsa('.checkout-button').forEach(button => button.addEventListener('click', () => {
       if (!cart.length) return;
       closeCart();
-      const layer = qs('.checkout-layer');
-      layer?.classList.add('open');
-      layer?.setAttribute('aria-hidden', 'false');
+      resetCheckout();
+      layer.classList.add('open');
+      layer.setAttribute('aria-hidden', 'false');
       document.body.classList.add('locked');
     }));
-    qsa('.checkout-close, .checkout-done').forEach(button => button.addEventListener('click', () => {
-      const layer = qs('.checkout-layer');
-      layer?.classList.remove('open');
-      layer?.setAttribute('aria-hidden', 'true');
-      document.body.classList.remove('locked');
-      if (button.classList.contains('checkout-done')) {
-        const orderData = { id: `order-${Date.now()}`, createdAt: new Date().toISOString(), items: cart, status: 'new' };
-        const orders = JSON.parse(localStorage.getItem('velvet-plate-orders') || '[]');
-        orders.push(orderData);
-        localStorage.setItem('velvet-plate-orders', JSON.stringify(orders));
-        
-        // Post to backend API
-        fetch('/api/orders', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(orderData)
-        }).catch(err => console.log('Backend API sync notice:', err));
 
-        cart = [];
-        saveCart();
-      }
-    }));
+    methodRadios.forEach(radio => radio.addEventListener('change', updateCheckoutTotals));
+    areaRadios.forEach(radio => radio.addEventListener('change', updateCheckoutTotals));
+
+    qs('.checkout-close', layer)?.addEventListener('click', () => {
+      layer.classList.remove('open');
+      layer.setAttribute('aria-hidden', 'true');
+      document.body.classList.remove('locked');
+    });
+
+    qs('.checkout-confirm', layer)?.addEventListener('click', () => {
+      if (!cart.length) return;
+      const foodSubtotal = subtotal();
+      const method = selectedMethod();
+      const area = method === 'delivery' ? selectedArea() : null;
+      const feeRate = method === 'delivery' ? (area === 'accra' ? 0.40 : 0.25) : 0;
+      const deliveryFee = foodSubtotal * feeRate;
+      const total = foodSubtotal + deliveryFee;
+      const orderData = {
+        id: `order-${Date.now()}`,
+        createdAt: new Date().toISOString(),
+        items: cart,
+        fulfillment: { method, area, feeRate, deliveryFee },
+        subtotal: foodSubtotal,
+        total,
+        status: 'new'
+      };
+      const orders = JSON.parse(localStorage.getItem('velvet-plate-orders') || '[]');
+      orders.push(orderData);
+      localStorage.setItem('velvet-plate-orders', JSON.stringify(orders));
+
+      fetch('/api/orders', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(orderData)
+      }).catch(err => console.log('Backend API sync notice:', err));
+
+      cart = [];
+      saveCart();
+      if (selection) selection.hidden = true;
+      if (success) success.hidden = false;
+      const successCopy = qs('.checkout-success-copy', layer);
+      if (successCopy) successCopy.textContent = method === 'delivery'
+        ? `Your ${area === 'accra' ? 'Outside Tema / Accra' : 'Inside Tema'} delivery order is on its way to the kitchen.`
+        : 'Your pickup order is on its way to the kitchen. We’ll see you at Taste Africa.';
+    });
+
+    qs('.checkout-done', layer)?.addEventListener('click', () => {
+      layer.classList.remove('open');
+      layer.setAttribute('aria-hidden', 'true');
+      document.body.classList.remove('locked');
+    });
   }
 
   function showMessage(form, message, success = false) {

@@ -4290,3 +4290,56 @@ body.dark-mode .ghana-hero h1 em {
     border-radius: 18px;
   }
 }
+
+/* A light, high-contrast footer keeps contact and staff links readable in both themes. */
+.site-footer,
+[data-theme="dark"] .site-footer {
+  background: #f4e3bd;
+  color: #1a0a00;
+  border-top: 4px solid #c4922a;
+}
+
+.site-footer p,
+.site-footer a:not(.brand),
+.site-footer small {
+  color: #1a0a00;
+  opacity: 0.88;
+}
+
+.site-footer a:not(.brand):hover {
+  color: #8b1a1a;
+}
+
+.site-footer .brand-logo {
+  filter: none;
+}
+
+.staff-links {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-align: left;
+}
+
+.staff-admin-link {
+  display: inline-grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border: 1px solid rgba(26, 10, 0, 0.32);
+  border-radius: 50%;
+  color: #1a0a00;
+  opacity: 1 !important;
+}
+
+.staff-admin-link svg {
+  width: 15px;
+  height: 15px;
+}
+
+.staff-admin-link:hover {
+  background: #8b1a1a;
+  border-color: #8b1a1a;
+  color: #ffffff !important;
+}

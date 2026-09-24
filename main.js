@@ -49,7 +49,7 @@
   function setupStaffAccess() {
     const footer = qs('.site-footer');
     if (!footer || qs('.staff-links', footer)) return;
-    footer.insertAdjacentHTML('beforeend', '<small class="staff-links">Staff access · <a href="admin.html">Admin</a> · <a href="orders.html">Orders</a> · <a href="reservations.html">Reservations</a></small>');
+    footer.insertAdjacentHTML('beforeend', '<small class="staff-links">Staff access · <a class="staff-admin-link" href="admin.html" aria-label="Open staff console" title="Staff console"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M7 10V8a5 5 0 0 1 10 0v2M6 10h12a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2Zm5 4h.01" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></a> · <a href="orders.html">Orders</a> · <a href="reservations.html">Reservations</a></small>');
   }
 
   function openCart() {

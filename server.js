@@ -30,6 +30,7 @@ const defaultData = {
     panna: true,
     spritz: true
   },
+  serviceActive: true,
   orders: [],
   reservations: []
 };
@@ -124,6 +125,23 @@ app.post('/api/availability', (req, res) => {
   res.json({ success: true, availability: db.availability });
 });
 
+// Service status is shared by staff and customers, so closed service blocks
+// orders even when the customer is using a different browser or device.
+app.get('/api/service', (req, res) => {
+  const db = readDB();
+  res.json({ active: db.serviceActive !== false });
+});
+
+app.post('/api/service', (req, res) => {
+  if (typeof req.body?.active !== 'boolean') {
+    return res.status(400).json({ error: 'Service status must be true or false.' });
+  }
+  const db = readDB();
+  db.serviceActive = req.body.active;
+  writeDB(db);
+  res.json({ success: true, active: db.serviceActive });
+});
+
 // GET Orders
 app.get('/api/orders', (req, res) => {
   const db = readDB();
@@ -133,6 +151,11 @@ app.get('/api/orders', (req, res) => {
 // POST New Order
 app.post('/api/orders', (req, res) => {
   const db = readDB();
+  if (db.serviceActive === false) {
+    return res.status(503).json({
+      error: 'We are currently closed for orders. Please try again between 9:00 AM and 10:00 PM.'
+    });
+  }
   const customer = req.body?.customer;
   if (!customer?.name || !customer?.phone) {
     return res.status(400).json({ error: 'Customer name and phone number are required.' });

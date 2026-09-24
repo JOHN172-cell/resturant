@@ -443,10 +443,34 @@
     let active = localStorage.getItem(serviceKey) !== 'false';
     update(active);
 
-    toggle.addEventListener('click', () => {
-      active = !active;
-      localStorage.setItem(serviceKey, String(active));
-      update(active);
+    fetch('/api/service')
+      .then(response => response.ok ? response.json() : Promise.reject())
+      .then(data => {
+        active = data.active !== false;
+        localStorage.setItem(serviceKey, String(active));
+        update(active);
+      })
+      .catch(() => {});
+
+    toggle.addEventListener('click', async () => {
+      const nextActive = !active;
+      toggle.disabled = true;
+      try {
+        const response = await fetch('/api/service', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ active: nextActive })
+        });
+        if (!response.ok) throw new Error('Unable to update service status');
+        const data = await response.json();
+        active = data.active !== false;
+      } catch (error) {
+        active = nextActive;
+      } finally {
+        localStorage.setItem(serviceKey, String(active));
+        update(active);
+        toggle.disabled = false;
+      }
     });
   }
 

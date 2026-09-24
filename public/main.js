@@ -8,6 +8,30 @@
 
   const qs = (selector, parent = document) => parent.querySelector(selector);
   const qsa = (selector, parent = document) => [...parent.querySelectorAll(selector)];
+  const serviceClosedMessage = 'We are currently closed for orders. Please try again between 9:00 AM and 10:00 PM. Thank you for choosing Taste of Africa.';
+
+  async function serviceIsActive() {
+    try {
+      const response = await fetch('/api/service');
+      if (!response.ok) throw new Error('Service status unavailable');
+      const data = await response.json();
+      return data.active !== false;
+    } catch (error) {
+      return localStorage.getItem('velvet-plate-service-active') !== 'false';
+    }
+  }
+
+  function showServiceClosedNotice() {
+    window.alert(serviceClosedMessage);
+  }
+
+  async function startOrder(dish) {
+    if (!await serviceIsActive()) {
+      showServiceClosedNotice();
+      return;
+    }
+    openDishModal(dish);
+  }
   const money = value => `₵${value.toFixed(2)}`;
 
   function normalizeCurrencyLabels() {
@@ -571,7 +595,7 @@
           cuisine: card.dataset.cuisine || card.querySelector('.card-category')?.textContent || '',
           image: imgUrl
         };
-        openDishModal(dish);
+        startOrder(dish);
       });
     });
 
@@ -604,7 +628,7 @@
           cuisine: 'Wood-Fired',
           image: imgUrl
         };
-        openDishModal(dish);
+        startOrder(dish);
       });
     });
 
@@ -827,8 +851,13 @@
     document.body.classList.remove('locked');
   }
 
-  function addCustomizedItem() {
+  async function addCustomizedItem() {
     if (!selectedDish) return;
+    if (!await serviceIsActive()) {
+      showServiceClosedNotice();
+      closeModal();
+      return;
+    }
     const foodType = selectedDish.foodType || detectFoodType(selectedDish);
     const schema = selectedDish.schema || getFoodTypeSchema(foodType, selectedDish);
 
@@ -1024,8 +1053,15 @@
       document.body.classList.remove('locked');
     });
 
-    qs('.checkout-confirm', layer)?.addEventListener('click', () => {
+    qs('.checkout-confirm', layer)?.addEventListener('click', async () => {
       if (!cart.length) return;
+      if (!await serviceIsActive()) {
+        showServiceClosedNotice();
+        layer.classList.remove('open');
+        layer.setAttribute('aria-hidden', 'true');
+        document.body.classList.remove('locked');
+        return;
+      }
       showContactStep();
     });
 
@@ -1034,7 +1070,7 @@
       if (selection) selection.hidden = false;
     });
 
-    contactForm?.addEventListener('submit', event => {
+    contactForm?.addEventListener('submit', async event => {
       event.preventDefault();
       if (!cart.length) return;
       const foodSubtotal = subtotal();
@@ -1057,15 +1093,30 @@
         total,
         status: 'new'
       };
+      if (!await serviceIsActive()) {
+        showServiceClosedNotice();
+        return;
+      }
+
+      try {
+        const response = await fetch('/api/orders', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(orderData)
+        });
+        if (!response.ok) {
+          const result = await response.json().catch(() => ({}));
+          window.alert(result.error || serviceClosedMessage);
+          return;
+        }
+      } catch (error) {
+        window.alert('We could not place your order just now. Please try again shortly.');
+        return;
+      }
+
       const orders = JSON.parse(localStorage.getItem('velvet-plate-orders') || '[]');
       orders.push(orderData);
       localStorage.setItem('velvet-plate-orders', JSON.stringify(orders));
-
-      fetch('/api/orders', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(orderData)
-      }).catch(err => console.log('Backend API sync notice:', err));
 
       cart = [];
       saveCart();
